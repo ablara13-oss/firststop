@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>First Stop Bar & Grill — Daily Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08090d;--card:#0f1118;--card2:#171b26;
+  --bd:rgba(255,255,255,0.08);--bd2:rgba(255,255,255,0.16);
+  --tx:#f2f4f8;--mu:#9099b0;
+  --red:#e63946;--green:#22c55e;--amber:#f59e0b;
+  --gold:#f9ca24;--blue:#60a5fa;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;-webkit-text-size-adjust:100%}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes glow{0%,100%{box-shadow:inset 0 0 0 0 rgba(230,57,70,0)}50%{box-shadow:inset 0 0 24px 0 rgba(230,57,70,0.2)}}
+@keyframes goldglow{0%,100%{box-shadow:inset 0 0 0 0 rgba(249,202,36,0)}50%{box-shadow:inset 0 0 20px 0 rgba(249,202,36,0.18)}}
+
+/* HEADER */
+.hdr{background:var(--red);padding:1rem 1.25rem 0}
+.bar-name{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:1.5px;color:#fff;line-height:1}
+.bar-sub{font-size:.88rem;color:rgba(255,255,255,.7);font-weight:500;margin-top:2px;margin-bottom:.75rem}
+.day-hero{background:rgba(0,0,0,.22);padding:.8rem 1rem;text-align:center}
+.day-name{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#fff;letter-spacing:2px;line-height:1}
+.day-date{font-size:.95rem;color:rgba(255,255,255,.8);font-weight:600;margin-top:3px}
+.day-special{font-size:.88rem;color:var(--gold);font-weight:700;margin-top:4px}
+.bc-notice{background:rgba(0,0,0,.28);border-top:1px solid rgba(255,255,255,.1);padding:.65rem 1.25rem;display:flex;align-items:flex-start;gap:8px}
+.bc-pill{background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.35);color:#86efac;font-size:.68rem;font-weight:800;padding:3px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0;margin-top:1px;letter-spacing:.04em}
+.bc-txt{font-size:.74rem;color:rgba(255,255,255,.62);line-height:1.55}
+.bc-txt strong{color:rgba(255,255,255,.88)}
+
+/* WEEK STRIP */
+.wstrip{background:var(--card2);border-bottom:1px solid var(--bd);display:flex;overflow-x:auto;padding:.5rem .75rem;gap:6px;-webkit-overflow-scrolling:touch}
+.wstrip::-webkit-scrollbar{height:2px}
+.wday{flex-shrink:0;padding:.4rem .8rem;border-radius:20px;font-size:.8rem;font-weight:600;color:var(--mu);border:1px solid var(--bd);white-space:nowrap;text-align:center;line-height:1.4}
+.wday.today{background:var(--red);border-color:var(--red);color:#fff}
+.wday-n{display:block;font-size:.66rem;opacity:.65;margin-bottom:1px}
+
+/* REFRESH BAR */
+.rbar{background:var(--card);border-bottom:1px solid var(--bd);padding:.45rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.rtxt{font-size:.75rem;color:var(--mu);display:flex;align-items:center;gap:7px}
+.rdot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2s infinite}
+.rnow{background:transparent;border:1px solid var(--bd);color:var(--mu);font-size:.74rem;font-family:inherit;padding:3px 10px;border-radius:6px;cursor:pointer}
+.rnow:hover{border-color:var(--bd2);color:var(--tx)}
+
+/* SPORT TABS */
+.tabs{display:flex;overflow-x:auto;background:var(--card);border-bottom:1px solid var(--bd);-webkit-overflow-scrolling:touch}
+.tabs::-webkit-scrollbar{height:3px}
+.tab{flex-shrink:0;padding:.8rem .95rem;font-size:.92rem;font-weight:600;font-family:inherit;background:transparent;border:none;cursor:pointer;color:var(--mu);border-bottom:3px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.tab:hover{color:var(--tx)}
+.tab.active{color:var(--tx);border-bottom-color:var(--red)}
+.tab .cnt{font-size:.7rem;padding:2px 6px;border-radius:10px;font-weight:700}
+.tab.active .cnt{background:var(--red);color:#fff}
+.tab:not(.active) .cnt{background:rgba(255,255,255,.09);color:var(--mu)}
+
+/* LEGEND */
+.legend{display:flex;gap:.85rem;padding:.55rem 1.25rem;background:var(--card);border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:5px;font-size:.74rem;color:var(--mu);white-space:nowrap}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* SPLIT LAYOUT */
+.split{display:grid;grid-template-columns:1fr 1fr;align-items:start}
+.split-left{border-right:1px solid var(--bd);position:sticky;top:0;max-height:100vh;overflow-y:auto}
+.split-right{background:var(--card);overflow-y:auto;max-height:100vh;position:sticky;top:0}
+@media(max-width:768px){
+  .split{grid-template-columns:1fr}
+  .split-left{border-right:none;border-bottom:2px solid var(--bd2);position:static;max-height:none;overflow-y:visible}
+  .split-right{position:static;max-height:none;overflow-y:visible}
+}
+
+/* GROUP LABEL */
+.glbl{padding:.65rem 1.25rem .3rem;font-size:.76rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);background:var(--bg)}
+
+/* GAME ROW */
+.gr{display:flex;align-items:stretch;border-bottom:1px solid var(--bd);cursor:pointer;min-height:88px;position:relative;transition:filter .15s}
+.gr:hover{filter:brightness(1.08)}
+.gr.fire{background:rgba(230,57,70,.13);border-left:5px solid var(--red);animation:glow 2.5s ease-in-out infinite}
+.gr.hot{background:rgba(245,158,11,.08);border-left:5px solid var(--amber)}
+.gr.ny{background:rgba(249,202,36,.16)!important;border-left:5px solid var(--gold)!important;animation:goldglow 3s ease-in-out infinite}
+.gr.selected{outline:2px solid var(--red);outline-offset:-2px}
+.fbadge{position:absolute;top:6px;right:7px;font-size:.65rem;font-weight:800;background:var(--red);color:#fff;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em}
+.nybadge{position:absolute;top:6px;right:7px;font-size:.65rem;font-weight:800;background:var(--gold);color:#000;padding:2px 7px;border-radius:20px}
+
+.gr-time{width:64px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.55rem .35rem;border-right:1px solid var(--bd)}
+.gr-hr{font-size:1.05rem;font-weight:700;color:var(--tx);line-height:1}
+.gr-ap{font-size:.74rem;color:var(--mu);font-weight:600;margin-top:2px}
+.gr-tz{font-size:.62rem;color:var(--mu);margin-top:1px}
+.ldot{width:8px;height:8px;border-radius:50%;background:var(--red);margin-bottom:4px;animation:pulse 1.2s infinite}
+
+.gr-body{flex:1;padding:.75rem .85rem;min-width:0}
+.gr-league{font-size:.72rem;font-weight:700;color:var(--mu);margin-bottom:3px;letter-spacing:.04em}
+.gr-match{font-size:1.05rem;font-weight:700;color:var(--tx);line-height:1.25;margin-bottom:5px}
+.gr.ny .gr-match{color:#fff}
+.gr-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:3px}
+.tag{font-size:.69rem;font-weight:700;padding:2px 8px;border-radius:4px;line-height:1.3;letter-spacing:.03em;text-transform:uppercase}
+.t-ny{background:rgba(249,202,36,.25);color:var(--gold)}
+.t-fire{background:rgba(230,57,70,.22);color:var(--red)}
+.t-hot{background:rgba(245,158,11,.22);color:var(--amber)}
+.t-play{background:rgba(34,197,94,.2);color:var(--green)}
+.t-live{background:var(--red);color:#fff;animation:pulse 1.5s infinite}
+.t-free{background:rgba(34,197,94,.15);color:#86efac;font-size:.76rem;font-weight:800;padding:3px 9px;border:1px solid rgba(34,197,94,.28)}
+.t-verify{background:rgba(245,158,11,.15);color:var(--amber);font-size:.76rem;font-weight:800;padding:3px 9px;border:1px solid rgba(245,158,11,.28)}
+.gr-net{font-size:.74rem;color:var(--mu);margin-top:1px}
+.gr-conf{font-size:.67rem;color:var(--mu);margin-top:2px;font-style:italic}
+
+.gr-right{display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;padding:.75rem .8rem .75rem .35rem;flex-shrink:0;gap:6px}
+.gr-score{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--tx);line-height:1;white-space:nowrap;text-align:right}
+.gr-ssub{font-size:.63rem;color:var(--mu);margin-top:2px;text-align:right}
+.pbtn{padding:.45rem .75rem;border-radius:7px;border:1.5px solid;font-size:.78rem;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;transition:all .15s}
+.pbtn.off{border-color:var(--bd2);background:transparent;color:var(--mu)}
+.pbtn.off:hover{border-color:var(--red);color:var(--red)}
+.pbtn.on{border-color:var(--red);background:var(--red);color:#fff}
+
+/* WORLD CUP */
+.wc{background:linear-gradient(135deg,#1c1000,#3d2800);border-top:1px solid rgba(249,202,36,.2);border-bottom:1px solid rgba(249,202,36,.2);padding:.85rem 1.25rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap;cursor:pointer}
+.wc:hover{filter:brightness(1.1)}
+.wc-ttl{font-family:'Bebas Neue',sans-serif;font-size:1.25rem;color:var(--gold);letter-spacing:1px}
+.wc-sub{font-size:.8rem;color:rgba(249,202,36,.6);margin-top:2px}
+.wc-bdg{background:var(--gold);color:#000;font-size:.75rem;font-weight:700;padding:4px 11px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.wc-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;overflow-y:auto;padding:1rem}
+.wc-ov.open{display:block}
+.wc-mod{background:#0f1118;border:1px solid var(--bd2);border-radius:14px;max-width:680px;margin:0 auto;overflow:hidden}
+.wc-mhdr{background:linear-gradient(135deg,#3d2800,#5c3a00);padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.wc-mtitl{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--gold);letter-spacing:1px}
+.wc-cls{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.2);color:#fff;width:36px;height:36px;border-radius:50%;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:inherit}
+.wc-bd{padding:1.25rem 1.5rem}
+.wc-ph{margin-bottom:1.5rem}
+.wc-pttl{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:var(--gold);letter-spacing:1px;margin-bottom:.65rem;padding-bottom:.45rem;border-bottom:1px solid rgba(249,202,36,.2)}
+.wc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:7px}
+.wc-m{background:var(--card2);border:1px solid var(--bd);border-radius:8px;padding:.7rem .9rem;display:flex;gap:9px;align-items:flex-start}
+.wc-m.hi{border-color:rgba(249,202,36,.4);background:rgba(249,202,36,.05)}
+.wc-mdate{font-size:.76rem;color:var(--mu);font-weight:700;flex-shrink:0;min-width:46px}
+.wc-mgame{font-size:.86rem;font-weight:600;color:var(--tx);flex:1;line-height:1.35}
+.wc-mven{font-size:.7rem;color:var(--mu);margin-top:2px}
+.wc-note{font-size:.8rem;color:var(--mu);line-height:1.6;margin-bottom:1rem;background:rgba(249,202,36,.05);border:1px solid rgba(249,202,36,.15);border-radius:8px;padding:.7rem .95rem}
+
+/* PROMPT GENERATOR PANEL */
+.pg{padding:1rem 1.1rem}
+.pg-title{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:1px;color:var(--tx);margin-bottom:3px}
+.pg-sub{font-size:.78rem;color:var(--mu);line-height:1.5;margin-bottom:1rem}
+
+/* API KEY */
+.key-setup{background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.2);border-radius:8px;padding:.85rem 1rem;margin-bottom:1rem}
+.key-setup-title{font-size:.82rem;font-weight:700;color:var(--blue);margin-bottom:.4rem;display:flex;align-items:center;gap:6px}
+.key-row{display:flex;gap:7px;align-items:center}
+.key-input{flex:1;background:var(--bg);border:1px solid var(--bd2);border-radius:6px;padding:.55rem .85rem;color:var(--tx);font-size:.88rem;font-family:inherit;outline:none}
+.key-input:focus{border-color:var(--blue)}
+.key-save{padding:.55rem 1rem;border-radius:6px;border:1px solid var(--blue);background:rgba(96,165,250,.12);color:var(--blue);font-size:.82rem;font-family:inherit;cursor:pointer;font-weight:600;white-space:nowrap}
+.key-save:hover{background:rgba(96,165,250,.2)}
+.key-ok{font-size:.78rem;color:var(--green);margin-top:.35rem;display:none}
+
+.sel-list{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:.85rem;min-height:38px;align-items:center}
+.chip{background:rgba(230,57,70,.15);border:1.5px solid rgba(230,57,70,.35);color:var(--red);padding:.35rem .75rem;border-radius:20px;font-size:.82rem;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.chip button{background:none;border:none;color:var(--red);cursor:pointer;font-size:1rem;line-height:1;padding:0}
+.sel-ph{font-size:.85rem;color:var(--mu);font-style:italic}
+
+.spec-box{background:var(--card2);border:1px solid var(--bd);border-radius:8px;padding:.85rem .95rem;margin-bottom:.85rem}
+.spec-lbl{font-size:.82rem;font-weight:700;color:var(--tx);margin-bottom:.55rem}
+.spec-lbl span{font-size:.72rem;color:var(--mu);font-weight:400}
+.spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.sf{display:flex;flex-direction:column;gap:3px}
+.sf label{font-size:.7rem;color:var(--mu);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.sf input{background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:.55rem .8rem;color:var(--tx);font-size:.88rem;font-family:inherit;outline:none;width:100%}
+.sf input:focus{border-color:var(--bd2)}
+.sf.full{grid-column:1/-1}
+@media(max-width:500px){.spec-grid{grid-template-columns:1fr}}
+
+.plt-tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.85rem}
+.plt{padding:.55rem .9rem;border-radius:7px;border:1.5px solid var(--bd);background:transparent;color:var(--mu);font-size:.82rem;font-family:inherit;cursor:pointer;font-weight:600;transition:all .15s}
+.plt:hover{color:var(--tx);border-color:var(--bd2)}
+.plt.active{background:var(--card2);border-color:var(--bd2);color:var(--tx)}
+
+.how-box{background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.18);border-radius:7px;padding:.7rem .9rem;margin-bottom:.85rem}
+.how-title{font-size:.78rem;font-weight:700;color:var(--blue);margin-bottom:.3rem}
+.how-steps{font-size:.76rem;color:var(--mu);line-height:1.65}
+.how-steps a{color:var(--blue);text-decoration:none}
+
+.gbtn{width:100%;padding:.9rem;border-radius:8px;border:none;font-size:1.1rem;font-family:'Bebas Neue',sans-serif;letter-spacing:2px;cursor:pointer;margin-bottom:.85rem;transition:all .2s}
+.gbtn.ready{background:var(--red);color:#fff}
+.gbtn.ready:hover{background:#c8303c}
+.gbtn.dis{background:var(--card2);color:var(--mu);cursor:not-allowed}
+
+.out-box{background:var(--card2);border:1.5px solid var(--bd);border-radius:8px;padding:1rem 1.1rem;min-height:120px;font-size:.88rem;line-height:1.75;color:var(--tx);white-space:pre-wrap}
+.out-ph{color:var(--mu);font-style:italic}
+.copy-row{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}
+.cbtn{padding:.6rem 1.1rem;border-radius:7px;border:1.5px solid;font-size:.84rem;font-family:inherit;cursor:pointer;font-weight:700;transition:all .2s;display:flex;align-items:center;gap:6px}
+.cbtn.main{border-color:var(--green);background:rgba(34,197,94,.1);color:var(--green)}
+.cbtn.main:hover{background:rgba(34,197,94,.18)}
+.cbtn.ext{border-color:var(--blue);background:rgba(96,165,250,.09);color:var(--blue)}
+.cbtn.ext:hover{background:rgba(96,165,250,.16)}
+.cbtn.done{background:var(--green);border-color:var(--green);color:#000}
+
+/* LOADING/EMPTY */
+.ld{padding:2rem 1.25rem;text-align:center;color:var(--mu)}
+.spin{width:26px;height:26px;border:2px solid var(--bd);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto .65rem}
+.empty{padding:2rem 1.25rem;text-align:center;color:var(--mu);font-size:.95rem}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--green);color:#000;font-size:.95rem;font-weight:700;padding:.7rem 1.4rem;border-radius:9px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="bar-name">First Stop Bar & Grill</div>
+  <div class="bar-sub">Daily Operations Dashboard</div>
+  <div class="day-hero">
+    <div class="day-name" id="day-name">Loading…</div>
+    <div class="day-date" id="day-date"></div>
+    <div class="day-special" id="day-special"></div>
+  </div>
+  <div class="bc-notice">
+    <div class="bc-pill">📡 BROADCAST NOTICE</div>
+    <div class="bc-txt">
+      <strong>Verizon Fios + Spectrum Business confirmed.</strong>
+      ESPN, TNT, TBS, ABC, NBC, CBS, Fox, FS1, FS2, YES, SNY, MSG, NFL/MLB/NHL/NBA Network, TUDN, Univision, beIN Sports, ESPN Deportes = <strong>✅ LIKELY FREE.</strong>
+      ESPN+, Peacock, Apple TV+, Paramount+, Max = <strong>⚠️ VERIFY</strong> — not in commercial package. Always confirm last-minute changes with your provider.
+    </div>
+  </div>
+</div>
+
+<div class="wstrip" id="wstrip"></div>
+
+<div class="rbar">
+  <div class="rtxt"><div class="rdot"></div><span id="rtxt">Live via ESPN Scoreboard API · auto-refreshes every 5 min</span></div>
+  <button class="rnow" onclick="refreshNow()">↺ Refresh Now</button>
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="legend">
+  <div class="leg"><div class="leg-dot" style="background:var(--red)"></div>🔥 Must Promote</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--amber)"></div>⚡ High Draw</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--gold)"></div>🗽 NY Team</div>
+</div>
+
+<div class="split">
+  <div class="split-left" id="split-left">
+    <div id="games"><div class="ld"><div class="spin"></div><p style="font-size:.9rem">Loading today's schedule…</p></div></div>
+    <div class="wc" id="wc-bar" style="display:none" onclick="openWC()">
+      <div style="flex:1"><div class="wc-ttl">⚽ FIFA World Cup 2026</div><div class="wc-sub">June 11 – July 19 · Tap to see full calendar</div></div>
+      <div class="wc-bdg">📅 VIEW →</div>
+    </div>
+  </div>
+
+  <div class="split-right">
+    <div class="pg">
+      <div class="pg-title">🎨 Generate Gemini / Canva Prompt</div>
+      <div class="pg-sub">Select a game → add your specials → generate a professional Instagram Story flyer prompt for Gemini ImageFX or Canva AI.</div>
+
+      <!-- GEMINI API KEY -->
+      <div class="key-setup" id="key-setup">
+        <div class="key-setup-title">🔑 One-time Gemini API Key setup</div>
+        <div style="font-size:.76rem;color:var(--mu);margin-bottom:.5rem">Free key at <strong style="color:var(--tx)">aistudio.google.com/apikey</strong> — saved in your browser, never shared.</div>
+        <div class="key-row">
+          <input type="password" class="key-input" id="gkey" placeholder="Paste your Gemini API key here (AIza…)" />
+          <button class="key-save" onclick="saveKey()">Save Key</button>
+        </div>
+        <div class="key-ok" id="key-ok">✓ Key saved — ready to generate!</div>
+      </div>
+
+      <!-- SELECTED GAMES -->
+      <div class="sel-list" id="sel-list"><span class="sel-ph">← Tap "+ Promote" on any game</span></div>
+
+      <!-- SPECIALS -->
+      <div class="spec-box">
+        <div class="spec-lbl">🍺 Tonight's Specials <span>(fills into the flyer automatically)</span></div>
+        <div class="spec-grid">
+          <div class="sf"><label>Drink Special 1</label><input type="text" id="sp1" placeholder="e.g. $5 draft beers" /></div>
+          <div class="sf"><label>Drink Special 2</label><input type="text" id="sp2" placeholder="e.g. 2-for-1 margaritas" /></div>
+          <div class="sf"><label>Food Special</label><input type="text" id="sp3" placeholder="e.g. $1 wings during game" /></div>
+          <div class="sf"><label>Other Promo</label><input type="text" id="sp4" placeholder="e.g. Free shot if NY team scores first" /></div>
+          <div class="sf full"><label>Vibe / Anything else</label><input type="text" id="sp5" placeholder="e.g. DJ at 10pm, family friendly till 8, $10 cover after 9…" /></div>
+        </div>
+      </div>
+
+      <!-- PLATFORM -->
+      <div class="plt-tabs">
+        <button class="plt active" data-p="gemini" onclick="setPlt(this)">✨ Gemini ImageFX</button>
+        <button class="plt" data-p="canva" onclick="setPlt(this)">🎨 Canva AI</button>
+        <button class="plt" data-p="caption" onclick="setPlt(this)">📝 Instagram Caption</button>
+        <button class="plt" data-p="sms" onclick="setPlt(this)">📱 SMS Blast</button>
+      </div>
+
+      <!-- HOW TO USE -->
+      <div class="how-box">
+        <div class="how-title">How to use this prompt:</div>
+        <div class="how-steps" id="how-steps"></div>
+      </div>
+
+      <button class="gbtn dis" id="gbtn" onclick="doGen()">SELECT A GAME TO START</button>
+
+      <div class="out-box" id="out-box"><span class="out-ph">Your ready-to-paste prompt will appear here. It will be detailed, visual, and professional — paste it directly into Gemini ImageFX or Canva AI to generate your Instagram Story flyer.</span></div>
+
+      <div class="copy-row" id="copy-row" style="display:none">
+        <button class="cbtn main" id="cbtn-main" onclick="doCopy()">📋 Copy Prompt</button>
+        <button class="cbtn ext" onclick="openExt()">↗ Open Tool</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wc-ov" id="wc-ov" onclick="closeWCBg(event)">
+  <div class="wc-mod">
+    <div class="wc-mhdr">
+      <div><div class="wc-mtitl">⚽ FIFA World Cup 2026</div><div style="font-size:.85rem;color:rgba(249,202,36,.6);margin-top:2px">USA · Canada · Mexico · Jun 11 – Jul 19, 2026</div></div>
+      <button class="wc-cls" onclick="closeWC()">✕</button>
+    </div>
+    <div class="wc-bd">
+      <div class="wc-note">🍺 <strong style="color:var(--tx)">Bar income guide:</strong> USA, Mexico, Argentina games = packed house. England + Brazil = huge crowd. Round of 16 onward = your highest-income nights. The FINAL is at MetLife Stadium — your backyard!</div>
+      <div id="wc-cal"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── BROADCAST DB ──
+const CABLE=['abc','nbc','cbs','fox','espn','espn2','espnu','tnt','tbs','truetv','fs1','fs2','nfl network','mlb network','nhl network','nba tv','yes network','yes','sny','msg','univision','unimas','tudn','espn deportes','fox deportes','bein sports','bein','cbssn','stadium'];
+const STREAM=['espn+','peacock','paramount+','apple tv+','apple tv','nba league pass','mlb.tv','nhl.tv','mls season pass','fubo','dazn','max','hulu live','youtube tv'];
+const SPORT_KB={
+  nfl:{net:'ESPN / ABC / NBC / CBS / Fox / NFL Network',note:'NFL always on cable networks — covered.'},
+  nba:{net:'TNT / ESPN / ABC',note:'NBA Playoffs on TNT, ESPN, ABC — cable, covered.'},
+  mlb:{net:'ESPN / Fox / FS1 / MLB Network / YES / SNY',note:'Most MLB on cable. Apple TV Friday games — verify those.'},
+  nhl:{net:'TNT / TBS / ESPN',note:'NHL Playoffs on TNT/TBS/ESPN — cable, covered.'},
+};
+const SOCCER_KB={
+  'soccer.uefa.champions':{net:'CBS Sports Network/TUDN/Paramount+',free:false,note:'UCL: CBS Sports Net (cable, ok) + Paramount+ (streaming, verify).'},
+  'soccer.eng.1':{net:'USA Network/Peacock',free:false,note:'EPL: USA Network (cable, ok) + Peacock (streaming, verify).'},
+  'soccer.spa.1':{net:'ESPN Deportes/ESPN+',free:false,note:'La Liga: ESPN Deportes (cable, ok) + ESPN+ (streaming, verify).'},
+  'soccer.ita.1':{net:'CBS Sports Network/Paramount+',free:false,note:'Serie A: CBS Sports Net (ok) + Paramount+ (verify).'},
+  'soccer.ger.1':{net:'ESPN/ESPN+',free:false,note:'Bundesliga: ESPN (ok) + ESPN+ (verify per game).'},
+  'soccer.fra.1':{net:'beIN Sports',free:true,note:'Ligue 1 on beIN Sports — cable, covered.'},
+  'soccer.usa.1':{net:'Apple TV+/Univision',free:false,note:'MLS: Apple TV+ (verify) + Univision free game (ok).'},
+  'soccer.mex.1':{net:'TUDN/Univision',free:true,note:'Liga MX on TUDN/Univision — cable, covered.'},
+  'soccer.conmebol.1':{net:'beIN Sports/Univision',free:true,note:'Copa Libertadores — cable, covered.'},
+  'soccer.por.1':{net:'GolTV/beIN Sports',free:true,note:'Primeira Liga — cable, covered.'},
+  'soccer.ned.1':{net:'ESPN+',free:false,note:'Eredivisie mainly ESPN+. Verify per game.'},
+  'soccer.uefa.europa':{net:'CBS Sports Network/Paramount+',free:false,note:'Europa League: CBS Sports Net (ok) + Paramount+ (verify).'},
+};
+function getBc(g){
+  const n=(g.network||'').toLowerCase().trim();
+  if(n.length>0){
+    const isSt=STREAM.some(s=>n.includes(s));
+    const hasESPN=n.includes('espn')&&!n.includes('espn+');
+    const isCa=CABLE.some(c=>n.includes(c))||hasESPN;
+    if(isCa&&!isSt)return{free:true,label:'✅ LIKELY FREE',cls:'t-free',conf:90,tip:'Cable channel — covered by Fios/Spectrum Business.'};
+    if(isSt&&!isCa)return{free:false,label:'⚠️ VERIFY',cls:'t-verify',conf:85,tip:'Streaming — not in your commercial package.'};
+    if(isCa&&isSt)return{free:false,label:'⚠️ VERIFY CHANNEL',cls:'t-verify',conf:68,tip:'Mixed cable+streaming — confirm which channel airs this game.'};
+  }
+  if(g.sport==='soccer'&&SOCCER_KB[g.leagueId]){const kb=SOCCER_KB[g.leagueId];return{free:kb.free,label:kb.free?'✅ LIKELY FREE':'⚠️ VERIFY',cls:kb.free?'t-free':'t-verify',conf:kb.free?83:70,tip:kb.note};}
+  if(SPORT_KB[g.sport])return{free:true,label:'✅ LIKELY FREE',cls:'t-free',conf:88,tip:SPORT_KB[g.sport].note};
+  return{free:false,label:'⚠️ VERIFY',cls:'t-verify',conf:50,tip:'No broadcast data — check provider before airing.'};
+}
+
+// ── DAY THEMING ──
+function getTheme(d){
+  const m=d.getMonth()+1,day=d.getDate(),dow=d.getDay();
+  const fixed={'1-1':{e:'🎆',n:"New Year's Day",t:'College football bowls all day'},'2-14':{e:'❤️',n:"Valentine's Day",t:'Date night specials — couples cocktails'},'3-17':{e:'🍀',n:"St. Patrick's Day",t:"BIGGEST BAR DAY OF THE YEAR — green beer, Irish whiskey, all-day celebration"},'5-5':{e:'🌮',n:"¡Cinco de Mayo!",t:'¡La fiesta más grande! Margaritas, tacos, Latin music & soccer all day'},'6-19':{e:'✊',n:'Juneteenth',t:'Celebrate with your community'},'7-4':{e:'🎇',n:'Independence Day 🇺🇸',t:'July 4th — BBQ specials, cold beers, fireworks'},'10-31':{e:'🎃',n:'Halloween',t:'Costume contest, spooky cocktails'},'11-26':{e:'🍺',n:'Thanksgiving Eve',t:"Busiest bar night of the year"},'11-27':{e:'🏈',n:'Thanksgiving Day',t:'NFL all day — turkey & football specials'},'12-24':{e:'🎄',n:'Christmas Eve',t:'Holiday cocktails, festive vibes'},'12-25':{e:'🎁',n:'Christmas Day',t:'NBA Christmas games — great basketball crowd'},'12-31':{e:'🎉',n:"New Year's Eve",t:'BIGGEST NIGHT OF THE YEAR — countdown party, champagne'}};
+  const k=m+'-'+day;if(fixed[k])return fixed[k];
+  const seasonal=[];
+  if((m===3&&day>=15)||(m===4&&day<=20))seasonal.push({e:'🏀',n:'NBA Playoffs',t:'Playoff basketball — watch party nights'});
+  if(m===6||m===7)seasonal.push({e:'⚽',n:'World Cup 2026!',t:'FIFA World Cup in the USA — every game a watch party'});
+  if(m===10&&day>=1&&day<=7)seasonal.push({e:'⚾',n:'World Series Week',t:"Baseball's biggest stage — pack the house"});
+  if(m===2&&day>=1&&day<=14)seasonal.push({e:'🏈',n:'Super Bowl Week',t:'Super Bowl prep — party planning'});
+  if((m===11&&day>=20)||m===12)seasonal.push({e:'🎄',n:'Holiday Season',t:'Holiday cocktail specials'});
+  const weekly=[{e:'🏈',n:'Sunday Funday',t:'NFL Sunday — open early, all-day football, wing specials'},{e:'🌮',n:'Meatless Monday',t:'Veggie specials, plant-based bites, lighter cocktails'},{e:'🌮',n:'Taco Tuesday',t:'$2 tacos, margarita specials, soccer on every TV'},{e:'🍷',n:'Wine Wednesday',t:'Wine specials, happy hour extended to 8pm'},{e:'🍺',n:'Thirsty Thursday',t:'Happy hour specials, big game nights'},{e:'🎉',n:'Friday Night Live',t:'Biggest crowd of the week — game nights, late kitchen'},{e:'⚽',n:'Soccer Saturday',t:'European leagues in the morning, MLS afternoon — soccer all day'}];
+  return seasonal.length>0?{e:seasonal[0].e,n:seasonal[0].n+' · '+weekly[dow].n,t:seasonal[0].t}:weekly[dow];
+}
+function buildWeek(today){
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const dow=today.getDay();const mon=new Date(today);mon.setDate(today.getDate()-((dow+6)%7));
+  let html='';
+  for(let i=0;i<7;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);const isT=d.toDateString()===today.toDateString();const th=getTheme(d);html+='<div class="wday'+(isT?' today':'')+'"><span class="wday-n">'+days[d.getDay()]+'</span>'+th.e+' '+(isT?'<strong>TODAY</strong>':d.getDate())+'</div>';}
+  document.getElementById('wstrip').innerHTML=html;
+}
+
+// ── SOCCER LEAGUES ──
+const SOCCER=[
+  {id:'soccer.uefa.champions',name:'Champions League',flag:'🏆',network:'Paramount+/CBS Sports',boost:26},
+  {id:'soccer.eng.1',name:'Premier League',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',network:'USA Network/Peacock',boost:20},
+  {id:'soccer.spa.1',name:'La Liga',flag:'🇪🇸',network:'ESPN Deportes/ESPN+',boost:22},
+  {id:'soccer.ita.1',name:'Serie A',flag:'🇮🇹',network:'Paramount+/CBS Sports',boost:18},
+  {id:'soccer.ger.1',name:'Bundesliga',flag:'🇩🇪',network:'ESPN/ESPN+',boost:15},
+  {id:'soccer.fra.1',name:'Ligue 1',flag:'🇫🇷',network:'beIN Sports',boost:12},
+  {id:'soccer.usa.1',name:'MLS',flag:'🇺🇸',network:'Apple TV+/Univision',boost:14},
+  {id:'soccer.mex.1',name:'Liga MX',flag:'🇲🇽',network:'TUDN/Univision',boost:20},
+  {id:'soccer.conmebol.1',name:'Copa Libertadores',flag:'🌎',network:'beIN Sports/Univision',boost:18},
+  {id:'soccer.por.1',name:'Primeira Liga',flag:'🇵🇹',network:'GolTV/beIN Sports',boost:10},
+  {id:'soccer.ned.1',name:'Eredivisie',flag:'🇳🇱',network:'ESPN+',boost:10},
+  {id:'soccer.uefa.europa',name:'Europa League',flag:'🟠',network:'Paramount+/CBS Sports',boost:16},
+];
+
+// ── POP SCORE ──
+const NY=['new york yankees','new york mets','new york knicks','new york giants','new york jets','new york rangers','new york islanders','new york red bulls','nycfc','new york city fc','brooklyn nets','new york liberty'];
+const STARS=['yankees','knicks','giants','jets','rangers','mets','red bulls','nycfc','lakers','celtics','warriors','real madrid','barcelona','manchester city','liverpool','arsenal','chelsea','juventus','ac milan','inter','atletico','psg','bayern','dortmund','chivas','flamengo','river plate','boca juniors'];
+const RIVALS=[['yankees','red sox'],['knicks','celtics'],['knicks','heat'],['giants','cowboys'],['giants','eagles'],['jets','patriots'],['rangers','devils'],['rangers','islanders'],['real madrid','barcelona'],['liverpool','manchester united'],['arsenal','chelsea'],['inter','milan'],['river plate','boca juniors']];
+function pop(g){
+  let s=g.sport==='nfl'?30:g.sport==='nba'?26:g.sport==='mlb'?20:g.sport==='nhl'?18:(g.lc?.boost||14);
+  const c=(g.home+' '+g.away).toLowerCase();
+  NY.forEach(t=>{if(c.includes(t))s+=20;});STARS.forEach(t=>{if(c.includes(t))s+=7;});RIVALS.forEach(([a,b])=>{if(c.includes(a)&&c.includes(b))s+=20;});
+  if((g.title||'').match(/playoff|final|championship|cup|wild card|divisional|conference|super bowl|world series|game \d/i))s+=16;
+  if(g.status==='in'||g.status==='inprogress')s+=8;
+  return Math.min(s,99);
+}
+function tier(s){return s>=80?'fire':s>=65?'hot':'cool';}
+
+// ── STATE ──
+let allGames=[],selected=new Set(),curTab='all',curPlt='gemini',genOut='',isGen=false,timer=null;
+const TABS=[{id:'all',e:'🏟',l:'All'},{id:'nfl',e:'🏈',l:'NFL'},{id:'nba',e:'🏀',l:'NBA'},{id:'mlb',e:'⚾',l:'MLB'},{id:'nhl',e:'🏒',l:'NHL'},{id:'soccer',e:'⚽',l:'Soccer'}];
+
+const HOW={
+  gemini:'1. Click <strong>Copy Prompt</strong> &rarr; 2. Open <a href="https://labs.google/fx/tools/image-fx" target="_blank">Gemini ImageFX ↗</a> &rarr; 3. Paste and click Generate &rarr; 4. Download and post to Instagram Stories.',
+  canva:'1. Click <strong>Copy Prompt</strong> &rarr; 2. Open <a href="https://www.canva.com" target="_blank">Canva ↗</a> &rarr; Create Instagram Story &rarr; Apps &rarr; Text to Image &rarr; Paste &rarr; Generate &rarr; customize and post.',
+  caption:'1. Click <strong>Copy</strong> &rarr; 2. Paste as your Instagram caption when posting your game night graphic.',
+  sms:'1. Click <strong>Copy</strong> &rarr; 2. Paste into your SMS tool or send directly from your phone to your regulars list.',
+};
+
+// ── GEMINI API KEY ──
+let geminiKey=localStorage.getItem('fsb_gemini_key')||'';
+function loadKeyUI(){
+  const setup=document.getElementById('key-setup');
+  const ok=document.getElementById('key-ok');
+  if(geminiKey){document.getElementById('gkey').value=geminiKey;ok.style.display='block';setup.style.background='rgba(34,197,94,.05)';setup.style.borderColor='rgba(34,197,94,.2)';}
+}
+function saveKey(){
+  const v=document.getElementById('gkey').value.trim();
+  if(!v){showToast('Please paste your Gemini API key first');return;}
+  geminiKey=v;localStorage.setItem('fsb_gemini_key',v);
+  const ok=document.getElementById('key-ok');
+  const setup=document.getElementById('key-setup');
+  ok.style.display='block';setup.style.background='rgba(34,197,94,.05)';setup.style.borderColor='rgba(34,197,94,.2)';
+  showToast('API key saved!');
+}
+
+// ── INIT ──
+const today=new Date();
+const dayTheme=getTheme(today);
+document.getElementById('day-name').textContent=dayTheme.e+' '+dayTheme.n;
+document.getElementById('day-date').textContent=today.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+document.getElementById('day-special').textContent=dayTheme.t;
+buildWeek(today);
+loadKeyUI();
+document.getElementById('how-steps').innerHTML=HOW[curPlt];
+document.getElementById('tabs').innerHTML=TABS.map(t=>'<button class="tab'+(t.id===curTab?' active':'')+'" id="tab-'+t.id+'" onclick="setTab(\''+t.id+'\')">'+ t.e+' '+t.l+' <span class="cnt" id="cnt-'+t.id+'">0</span></button>').join('');
+
+// ── FETCH ──
+async function fetchLeague(sport,lid,lc=null){
+  const d=today.toISOString().split('T')[0].replace(/-/g,'');
+  try{
+    const r=await fetch('https://site.api.espn.com/apis/site/v2/sports/'+sport+'/'+lid+'/scoreboard?dates='+d+'&limit=60');
+    if(!r.ok)return[];
+    const data=await r.json();
+    const kb=lc?null:SPORT_KB[lid];const fb=kb?kb.net:(lc?lc.network:'');
+    return(data.events||[]).map(ev=>{
+      const comp=ev.competitions[0];
+      const home=comp.competitors.find(c=>c.homeAway==='home');
+      const away=comp.competitors.find(c=>c.homeAway==='away');
+      const dateObj=new Date(ev.date);
+      const timeET=dateObj.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'});
+      const dateLong=dateObj.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric',timeZone:'America/New_York'});
+      const bcs=comp.broadcasts||[];
+      const network=bcs.length>0?bcs[0].names?.join(', '):null;
+      const notes=(ev.notes||[]).map(n=>n.headline||'').filter(Boolean).join(' ');
+      const state=ev.status?.type?.state||'pre';
+      return{id:ev.id,sport:lc?'soccer':lid,home:home?.team?.displayName||'',away:away?.team?.displayName||'',
+        status:state,statusDesc:ev.status?.type?.shortDetail||'',time:timeET,dateLong,
+        network:network||fb,notes,title:notes,
+        homeScore:home?.score!==undefined?home.score:'',awayScore:away?.score!==undefined?away.score:'',
+        rawDate:ev.date,leagueId:lid,lc,
+        sportLabel:lc?(lc.flag+' '+lc.name):({nfl:'🏈 NFL',nba:'🏀 NBA',mlb:'⚾ MLB',nhl:'🏒 NHL'}[lid]||lid)};
+    });
+  }catch(e){return[];}
+}
+
+async function loadAll(silent){
+  if(!silent)document.getElementById('games').innerHTML='<div class="ld"><div class="spin"></div><p style="font-size:.9rem">Loading today\'s schedule…</p></div>';
+  const results=await Promise.allSettled([
+    fetchLeague('football','nfl'),fetchLeague('basketball','nba'),
+    fetchLeague('baseball','mlb'),fetchLeague('hockey','nhl'),
+    ...SOCCER.map(lg=>fetchLeague('soccer',lg.id.replace(/^soccer\./,''),lg)),
+  ]);
+  const fresh=[];results.forEach(r=>{if(r.status==='fulfilled')fresh.push(...r.value);});
+  fresh.sort((a,b)=>new Date(a.rawDate)-new Date(b.rawDate));
+  allGames=fresh;updateCounts();render();
+  const now=new Date();
+  document.getElementById('rtxt').textContent='Live via ESPN Scoreboard API · Updated '+now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+' · auto-refreshes every 5 min';
+  if(!silent){if(timer)clearInterval(timer);timer=setInterval(()=>loadAll(true),5*60*1000);}
+}
+function refreshNow(){document.getElementById('rtxt').textContent='Refreshing…';loadAll(true);}
+function updateCounts(){TABS.forEach(t=>{const el=document.getElementById('cnt-'+t.id);if(el)el.textContent=t.id==='all'?allGames.length:allGames.filter(g=>g.sport===t.id).length;});}
+
+// ── RENDER ──
+function render(){
+  const el=document.getElementById('games');
+  const filtered=curTab==='all'?allGames:allGames.filter(g=>g.sport===curTab);
+  document.getElementById('wc-bar').style.display=(curTab==='all'||curTab==='soccer')?'flex':'none';
+  if(!filtered.length){el.innerHTML='<div class="empty">📭 No games today in this league.</div>';return;}
+  let html='';
+  const sn={nfl:'🏈 NFL Football',nba:'🏀 NBA Basketball',mlb:'⚾ MLB Baseball',nhl:'🏒 NHL Hockey',soccer:'⚽ Soccer'};
+  if(curTab==='all'){
+    ['nfl','nba','mlb','nhl','soccer'].forEach(sp=>{
+      const sg=filtered.filter(g=>g.sport===sp);if(!sg.length)return;
+      html+='<div class="glbl">'+sn[sp]+'</div>';sg.forEach(g=>{html+=row(g);});
+    });
+  }else if(curTab==='soccer'){
+    const byL={};filtered.forEach(g=>{if(!byL[g.leagueId])byL[g.leagueId]=[];byL[g.leagueId].push(g);});
+    Object.values(byL).forEach(lgs=>{html+='<div class="glbl">'+lgs[0].sportLabel+'</div>';lgs.forEach(g=>{html+=row(g);});});
+  }else{filtered.forEach(g=>{html+=row(g);});}
+  el.innerHTML=html;
+}
+
+function row(g){
+  const s=pop(g),t=tier(s);
+  const isNY=NY.some(n=>(g.home+' '+g.away).toLowerCase().includes(n));
+  const isPlay=!!(g.title||'').match(/playoff|final|championship|cup|wild card|divisional|conference|super bowl|world series|game \d/i);
+  const isLive=g.status==='in'||g.status==='inprogress';
+  const hasSc=g.homeScore!==''&&g.awayScore!==''&&g.status!=='pre'&&g.status!=='scheduled';
+  const sel=selected.has(g.id);const bs=getBc(g);
+  let cls='gr';if(isNY)cls+=' ny';else if(t==='fire')cls+=' fire';else if(t==='hot')cls+=' hot';if(sel)cls+=' selected';
+  const tp=g.time.match(/(\d+:\d+)\s*(AM|PM)?/i)||[];const hr=tp[1]||g.time,ampm=tp[2]||'';
+  let tags='';
+  if(isLive)tags+='<span class="tag t-live">● LIVE</span>';
+  if(isNY)tags+='<span class="tag t-ny">🗽 NY Team</span>';
+  if(isPlay)tags+='<span class="tag t-play">🏆 Playoffs</span>';
+  if(t==='fire'&&!isNY)tags+='<span class="tag t-fire">🔥 Must Promote</span>';
+  else if(t==='hot'&&!isNY)tags+='<span class="tag t-hot">⚡ High Draw</span>';
+  tags+='<span class="tag '+bs.cls+'">'+bs.label+'</span>';
+  const badge=isNY&&s>=65?'<div class="nybadge">🗽 PROMOTE!</div>':t==='fire'&&!isNY?'<div class="fbadge">🔥 PROMOTE</div>':'';
+  const scoreHTML=hasSc?'<div class="gr-score">'+g.homeScore+'–'+g.awayScore+'</div><div class="gr-ssub">'+(g.statusDesc||'Final')+'</div>':'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;line-height:1;text-align:right;color:'+(t==='fire'?'var(--red)':t==='hot'?'var(--amber)':'var(--mu)')+'">'+s+'</div>';
+  return'<div class="'+cls+'" id="gr-'+g.id+'" onclick="toggleSel(\''+g.id+'\')">'+ badge+'<div class="gr-time">'+(isLive?'<div class="ldot"></div>':'')+'<div class="gr-hr">'+hr+'</div><div class="gr-ap">'+ampm+'</div><div class="gr-tz">ET</div></div>'+'<div class="gr-body"><div class="gr-league">'+g.sportLabel+'</div><div class="gr-match">'+g.home+' vs '+g.away+'</div><div class="gr-tags">'+tags+'</div><div class="gr-net">'+(g.network||'')+'</div><div class="gr-conf">~'+bs.conf+'% · '+bs.tip+'</div></div>'+'<div class="gr-right"><div>'+scoreHTML+'</div><button class="pbtn '+(sel?'on':'off')+'" onclick="event.stopPropagation();toggleSel(\''+g.id+'\')">'+(sel?'✓ Selected':'+ Promote')+'</button></div></div>';
+}
+
+// ── INTERACTIONS ──
+function setTab(id){curTab=id;document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+id)?.classList.add('active');render();}
+function toggleSel(id){
+  selected.has(id)?selected.delete(id):selected.add(id);genOut='';
+  const g=allGames.find(x=>x.id===id);
+  if(g){const row=document.getElementById('gr-'+id);if(row){const isNY=NY.some(n=>(g.home+' '+g.away).toLowerCase().includes(n));const t=tier(pop(g));const on=selected.has(id);let cls='gr';if(isNY)cls+=' ny';else if(t==='fire')cls+=' fire';else if(t==='hot')cls+=' hot';if(on)cls+=' selected';row.className=cls;const btn=row.querySelector('.pbtn');btn.className='pbtn '+(on?'on':'off');btn.textContent=on?'✓ Selected':'+ Promote';}}
+  renderChips();updateBtn();
+}
+function desel(id){selected.delete(id);genOut='';renderChips();updateBtn();}
+function renderChips(){
+  const el=document.getElementById('sel-list');
+  const sg=[...selected].map(id=>allGames.find(g=>g.id===id)).filter(Boolean);
+  if(!sg.length){el.innerHTML='<span class="sel-ph">← Tap "+ Promote" on any game</span>';return;}
+  el.innerHTML=sg.map(g=>'<div class="chip">'+g.home+' vs '+g.away+'<button onclick="desel(\''+g.id+'\')">×</button></div>').join('');
+}
+function setPlt(btn){
+  curPlt=btn.dataset.p;
+  document.querySelectorAll('.plt').forEach(b=>b.classList.toggle('active',b.dataset.p===curPlt));
+  document.getElementById('how-steps').innerHTML=HOW[curPlt];
+}
+function updateBtn(){
+  const btn=document.getElementById('gbtn');const n=selected.size;
+  if(n===0||isGen){btn.className='gbtn dis';btn.textContent=isGen?'GENERATING…':'SELECT A GAME TO START';}
+  else{btn.className='gbtn ready';btn.textContent='GENERATE '+curPlt.toUpperCase()+' PROMPT'+(n>1?' ('+n+' GAMES)':'');}
+}
+
+// ── GEMINI PROMPT GENERATION ──
+// Full professional prompt templates for each platform
+function buildGeminiImagePrompt(gameLines,specials,dayThemeTxt,barInfo){
+  return 'Create a VERTICAL Instagram Story flyer (9:16 ratio, 1080x1920px) for a NYC sports bar called "First Stop Bar & Grill".\n\n'
+    +'VISUAL STYLE:\n'
+    +'- Dark, cinematic sports bar atmosphere with dramatic stadium lighting\n'
+    +'- Deep black and charcoal backgrounds with glowing neon red and gold accent lighting\n'
+    +'- Photorealistic style blending sports photography with bold graphic design\n'
+    +'- Energy and excitement — crowd blur, motion, anticipation\n'
+    +'- Dynamic diagonal composition, bold typography hierarchy\n'
+    +'- Cinematic lens flares and light rays in red and gold tones\n\n'
+    +'TEXT TO DISPLAY ON THE FLYER (render these words exactly as shown):\n'
+    +'- TOP: "FIRST STOP BAR & GRILL" in large bold block letters\n'
+    +'- HEADLINE: "'+gameLines.split('\n').map(l=>{const p=l.split('|');return p[0].trim()+': '+p[1]?.trim();}).join(' + ')+'" in massive stadium-style lettering\n'
+    +'- GAME TIME: "'+gameLines.split('\n').map(l=>{const p=l.split('|');return p[2]?.trim();}).join(' / ')+'" in glowing digital clock font\n'
+    +'- SPECIALS SECTION: Bold golden text listing: '+specials+'\n'
+    +'- BOTTOM CTA: "COME WATCH WITH US • NYC\'S BEST SPORTS BAR"\n\n'
+    +'IMAGERY:\n'
+    +'- Background: blurred stadium crowd in team colors, with dramatic overhead lighting\n'
+    +'- Floating beer glasses with condensation catching light\n'
+    +'- Team color accents radiating from center\n'
+    +'- Confetti or energy particles suggesting big game atmosphere\n\n'
+    +'ANIMATION NOTES (if animated): Pulsing glow on the headline, shimmer on the gold specials text, crowd noise energy lines radiating outward\n\n'
+    +'COLOR PALETTE: Deep charcoal #0a0a0f, Neon red #e63946, Championship gold #f9ca24, Electric white #f2f4f8\n\n'
+    +'TYPOGRAPHY: Bold condensed sans-serif for headlines (think NFL/ESPN broadcast style), clean sans-serif for details\n\n'
+    +'TODAY CONTEXT: '+dayThemeTxt;
+}
+
+function buildCanvaPrompt(gameLines,specials,dayThemeTxt){
+  return 'Instagram Story flyer for sports bar, vertical 9:16 format. Dark dramatic sports bar aesthetic, deep black background with neon red and gold lighting effects, cinematic stadium atmosphere. Bold vertical layout. '
+    +'Main text: "FIRST STOP BAR & GRILL" at top, then large bold game matchup "'
+    +gameLines.split('\n').map(l=>l.split('|')[1]?.trim()||'').join(' vs ')+'" in the center, '
+    +'game time "'+gameLines.split('\n').map(l=>l.split('|')[2]?.trim()||'').join(' / ')+'" below it, '
+    +'specials in gold text: '+specials+'. '
+    +'Bottom: "Come watch with us". '
+    +'Photo-realistic sports energy, blurred crowd background, beer glasses, team color lighting, high-contrast, professional sports broadcast graphic style. '
+    +'Cinematic, exciting, NYC neighborhood sports bar vibe. '+dayThemeTxt;
+}
+
+function buildCaption(gameLines,specials,dayThemeTxt,barName){
+  const games=gameLines.split('\n');
+  const matchup=games.map(l=>l.split('|')[1]?.trim()||'').join(' + ');
+  const times=games.map(l=>l.split('|')[2]?.trim()||'').join(' & ');
+  const channels=games.map(l=>l.split('|')[3]?.trim()||'').join(' / ');
+  return 'TONIGHT AT FIRST STOP BAR & GRILL 🏟️🔥\n\n'
+    +'We\'re airing '+matchup+'\n'
+    +times+' ET | '+channels+'\n\n'
+    +'🍺 TONIGHT\'S SPECIALS:\n'+specials.split(' · ').map(s=>'• '+s).join('\n')+'\n\n'
+    +'Come through, grab a seat, and watch the game with your crew. '
+    +'Best spot in the Bronx to catch the game. 🗽\n\n'
+    +(dayThemeTxt.length>0?'🎉 '+dayThemeTxt+'\n\n':'')
+    +'📍 First Stop Bar & Grill — NYC\n\n'
+    +'#FirstStopBarAndGrill #NYCSportsBar #WatchParty #'+matchup.replace(/[^a-zA-Z0-9]/g,'').substring(0,20)+' #NYCSports #GameNight #BronxBars #SportsBar';
+}
+
+function buildSMS(gameLines,specials){
+  const games=gameLines.split('\n');
+  const matchup=games.map(l=>l.split('|')[1]?.trim()||'').join(' + ');
+  const time=games[0]?.split('|')[2]?.trim()||'Tonight';
+  const deal=specials.split(' · ')[0]||'specials all night';
+  const txt='🏟 '+matchup+' '+time+' ET @ First Stop Bar & Grill! '+deal+'. Come through! 🍺';
+  return txt.substring(0,160);
+}
+
+async function doGen(){
+  const sg=[...selected].map(id=>allGames.find(g=>g.id===id)).filter(Boolean);
+  if(!sg.length||isGen)return;
+  if(!geminiKey){showToast('Save your Gemini API key first ↑');document.getElementById('gkey').focus();return;}
+
+  const sp=[document.getElementById('sp1').value.trim(),document.getElementById('sp2').value.trim(),document.getElementById('sp3').value.trim(),document.getElementById('sp4').value.trim(),document.getElementById('sp5').value.trim()].filter(Boolean);
+  const specials=sp.length>0?sp.join(' · '):'Cold beers, great food, best seats in NYC';
+
+  isGen=true;updateBtn();
+  document.getElementById('out-box').innerHTML='<span class="out-ph">✨ Building your professional prompt…</span>';
+  document.getElementById('copy-row').style.display='none';
+  genOut='';
+
+  const gameLines=sg.map(g=>{
+    const bs=getBc(g);
+    return'Game|'+g.home+' vs '+g.away+'|'+g.time+' ET '+g.dateLong+'|'+g.network+' ('+bs.label+')';
+  }).join('\n');
+
+  const barInfo='First Stop Bar & Grill, NYC neighborhood sports bar';
+  const dayCtx=dayTheme.t;
+
+  // Build the prompt locally — no API call needed for the prompt structure itself
+  // Then use Gemini to refine and add personality
+  let localPrompt='';
+  if(curPlt==='gemini')localPrompt=buildGeminiImagePrompt(gameLines,specials,dayCtx,barInfo);
+  else if(curPlt==='canva')localPrompt=buildCanvaPrompt(gameLines,specials,dayCtx);
+  else if(curPlt==='caption')localPrompt=buildCaption(gameLines,specials,dayCtx,barInfo);
+  else if(curPlt==='sms')localPrompt=buildSMS(gameLines,specials);
+
+  // Use Gemini to enhance/finalize the prompt
+  const refinementPrompt=curPlt==='gemini'||curPlt==='canva'
+    ?'You are an expert AI image prompt engineer. Take the following image generation prompt draft and make it more vivid, specific, and effective for generating a stunning Instagram Story flyer. Keep ALL the exact text, game details, times, and specials — only enhance the visual/artistic direction. Return ONLY the final polished prompt, nothing else:\n\n'+localPrompt
+    :'You are a social media expert for NYC bars. Refine the following post to be more engaging, authentic, and exciting while keeping ALL exact details (game names, times, channels, specials). Return ONLY the final post text:\n\n'+localPrompt;
+
+  try{
+    const resp=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+geminiKey,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        contents:[{parts:[{text:refinementPrompt}]}],
+        generationConfig:{temperature:0.9,maxOutputTokens:1200}
+      })
+    });
+    if(!resp.ok){
+      const err=await resp.json();
+      throw new Error(err.error?.message||'Gemini API error '+resp.status);
+    }
+    const data=await resp.json();
+    const refined=data.candidates?.[0]?.content?.parts?.[0]?.text;
+    genOut=refined||localPrompt;
+  }catch(e){
+    // If Gemini fails, use our locally built prompt — it's still professional
+    genOut=localPrompt;
+    showToast('Using built-in prompt (Gemini key issue: '+e.message.substring(0,40)+')');
+  }
+
+  isGen=false;
+  document.getElementById('out-box').textContent=genOut;
+  document.getElementById('copy-row').style.display='flex';
+  updateBtn();
+  showToast('Prompt ready! Copy and paste into '+(curPlt==='gemini'?'Gemini ImageFX':curPlt==='canva'?'Canva AI':curPlt==='caption'?'Instagram':'SMS'));
+}
+
+function doCopy(){
+  navigator.clipboard.writeText(genOut).then(()=>{
+    const b=document.getElementById('cbtn-main');b.textContent='✓ Copied!';b.classList.add('done');
+    setTimeout(()=>{b.textContent='📋 Copy Prompt';b.classList.remove('done');},2500);
+    showToast('Copied to clipboard!');
+  }).catch(()=>{
+    // Fallback for browsers that block clipboard
+    const ta=document.createElement('textarea');ta.value=genOut;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    showToast('Copied!');
+  });
+}
+function openExt(){const urls={gemini:'https://labs.google/fx/tools/image-fx',canva:'https://www.canva.com',caption:'https://instagram.com',sms:''};const u=urls[curPlt];if(u)window.open(u,'_blank');}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+// ── WORLD CUP ──
+const WC=[
+  {title:'Group Stage — Jun 11 to Jul 2, 2026',note:'48 teams · 12 groups · Every game a potential watch party',matches:[{date:'Jun 11',game:'Opening Match + Mexico vs TBD',venue:'Estadio Azteca, Mexico City 🇲🇽',hi:true},{date:'Jun 12',game:'USA vs TBD',venue:'SoFi Stadium, Los Angeles 🇺🇸',hi:true},{date:'Jun 13',game:'England + Brazil matches',venue:'Various US venues',hi:true},{date:'Jun 14',game:'Argentina + Spain matches',venue:'Various venues',hi:true},{date:'Jun 15–30',game:'All 48 Group Stage matches',venue:'16 cities across USA/Canada/Mexico',hi:false},{date:'Jul 1–2',game:'Final Group Stage matchdays',venue:'Multiple venues',hi:false}]},
+  {title:'Round of 32 — Jul 4 to Jul 9',note:'32 teams advance · Bar nights start getting big here',matches:[{date:'Jul 4 🇺🇸',game:'Round of 32 BEGINS — July 4th double feature!',venue:'USA venues',hi:true},{date:'Jul 5–9',game:'Remaining Round of 32 matches',venue:'US/Canada/Mexico',hi:false}]},
+  {title:'Round of 16 — Jul 11 to Jul 14',note:'🔥 Every game packed',matches:[{date:'Jul 11–14',game:'8 knockout matches',venue:'MetLife NJ · Rose Bowl LA · AT&T Dallas',hi:true}]},
+  {title:'Quarterfinals — Jul 17 to Jul 19',note:'🔥🔥 Plan your biggest watch parties',matches:[{date:'Jul 17–19',game:'4 Quarterfinal matches',venue:'MetLife NJ · Rose Bowl LA · AT&T Dallas',hi:true}]},
+  {title:'Semifinals — Jul 22 & 23',note:'Your TWO BIGGEST nights of the summer',matches:[{date:'Jul 22',game:'Semifinal 1',venue:'AT&T Stadium, Dallas TX',hi:true},{date:'Jul 23',game:'Semifinal 2',venue:'Rose Bowl, Pasadena CA',hi:true}]},
+  {title:'The Final — July 19, 2026',note:'🏆 BIGGEST SPORTS NIGHT OF THE DECADE',matches:[{date:'Jul 25',game:'Third Place Match',venue:'Hard Rock Stadium, Miami FL',hi:false},{date:'Jul 19',game:'🏆 FIFA WORLD CUP FINAL',venue:'MetLife Stadium, East Rutherford NJ — YOUR BACKYARD!',hi:true}]},
+];
+function openWC(){
+  document.getElementById('wc-cal').innerHTML=WC.map(p=>'<div class="wc-ph"><div class="wc-pttl">'+p.title+'</div><div style="font-size:.78rem;color:var(--mu);margin-bottom:.65rem">'+p.note+'</div><div class="wc-grid">'+p.matches.map(m=>'<div class="wc-m'+(m.hi?' hi':'')+'"><div><div class="wc-mdate">'+m.date+'</div></div><div><div class="wc-mgame">'+m.game+'</div><div class="wc-mven">'+m.venue+'</div></div></div>').join('')+'</div></div>').join('');
+  document.getElementById('wc-ov').classList.add('open');document.body.style.overflow='hidden';
+}
+function closeWC(){document.getElementById('wc-ov').classList.remove('open');document.body.style.overflow='';}
+function closeWCBg(e){if(e.target===document.getElementById('wc-ov'))closeWC();}
+
+loadAll(false);
+</script>
+</body>
+</html>
