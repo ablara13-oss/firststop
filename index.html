@@ -638,212 +638,152 @@ function updateBtn(){
 }
 
 // ── PROMPT BUILDERS ──
-// ── FIRST STOP BAR & GRILL — BRAND DNA ──
-// Outside: Bold red italic serif + electric blue channel letters + brick storefront
-// Inside: NYC subway graffiti art on walls, Latin nightlife energy, confident bartenders
-// Audience at night: Latin sports fans who are also there to party — Queens-proud, culturally vibrant
-// This is NOT a generic sports bar. It is a cultural venue that shows sports.
-// Creative must feel: gritty NYC street art + vintage fight poster + Latin nightclub flyer — all at once
-
+// ── BASE STYLE LIBRARY ──
+// Queens dive bar with sports angle. Adults 21+. NY sports fans + Latin community.
+// Outside: bold red sign + electric blue letters. Inside: subway graffiti walls, nightlife energy.
+// Aesthetic: vintage fight poster meets Latin party flyer meets NYC street art.
 const BASE_STYLES=[
   {
-    name:'NYC Subway Graffiti Night',
-    desc:'The inside of First Stop at night — walls covered in vivid NYC subway-style graffiti art, wild style lettering in electric colors (magenta, electric blue, chrome silver, fire orange) on dark subway tile. The graffiti IS the background. Tags and murals with Latin cultural motifs — tropical flowers, Dominican flags, Puerto Rican sun, soccer balls — painted directly on the walls. Dramatic bar lighting from above casts warm amber and blue light across the scene. The energy is alive, loud, and beautiful. Like being inside a moving Queens subway car that got transformed into the hottest bar in the borough.',
+    name:'Vintage Fight Poster',
+    artDir:'vintage 1970s boxing fight poster, aged cream paper texture, halftone printing dots, distressed ink edges, bold condensed red serif typography, wheat-paste aesthetic, Queens NYC street energy',
   },
   {
-    name:'Vintage Queens Fight Poster',
-    desc:'Old school NYC fight poster — the kind wheat-pasted on telephone poles and bodega windows in Queens in the 1970s-80s. Aged cream and yellowed paper texture with ink bleed and fold marks. Bold condensed red and blue serif typography — MASSIVE headline text. Halftone dot photo printing effect. Distressed torn edges. A Spanish-language slogan bleeds through the composition. Feels like it was designed by hand in a print shop on Roosevelt Avenue. Authentic, street-level, Queens-proud.',
+    name:'Neon Bar Night',
+    artDir:'dark bar interior, neon sign glow, warm amber bar lighting, condensation on cold beer glasses, bokeh background lights, nightlife energy, moody and inviting, adults at a lively sports bar',
+  },
+  {
+    name:'Bold Graphic Poster',
+    artDir:'modern bold graphic design, large flat color blocks in deep red and royal blue, geometric diagonal shapes, high contrast, championship energy, clean sans-serif typography, sports broadcast aesthetic',
+  },
+  {
+    name:'NYC Street Art',
+    artDir:'NYC subway graffiti mural style, wild style lettering, vivid spray paint colors, urban street art, Queens neighborhood pride, Latin cultural motifs, bold and energetic',
+  },
+  {
+    name:'Retro Sports Card',
+    artDir:'1980s retro sports card design, starburst background, bold diagonal color stripes in red and blue, vintage halftone texture, classic sports collectible aesthetic, nostalgic NYC sports energy',
   },
   {
     name:'Latin Fiesta Night',
-    desc:'Vibrant Latin nightclub energy meets sports bar. Deep jewel-tone background — rich burgundy or midnight blue — exploding with saturated color accents: hot magenta, tropical yellow-gold, electric green, fiesta red. Confetti and streamers frozen mid-burst. Maracas, tropical flower garlands, and Dominican and Puerto Rican color palettes woven into the decorative elements. The energy is celebratory, warm, sensual, and alive. This is what the inside of First Stop feels like when a big game ends and the party begins. The kind of night you talk about for weeks.',
+    artDir:'vibrant Latin party flyer aesthetic, rich jewel-tone background, saturated hot magenta and tropical gold accents, confetti burst, celebratory nightlife energy, warm and electric atmosphere',
   },
   {
-    name:'Retro Championship Card',
-    desc:'1970s-80s championship sports program cover aesthetic. Bold color block background split diagonally — deep crimson and royal blue. Starburst graphic elements behind the headline. Thick white bordered typography in classic sports condensed italic serif. A subtle vintage halftone texture overlays everything. Star ratings, trophy icons, and old-school boxing belt graphics as decorative elements. Feels like a collector\'s item from the golden era of NYC sports. The kind of graphic your grandfather had on the wall.',
-  },
-  {
-    name:'Queens Street Mural',
-    desc:'A large-scale NYC neighborhood street mural style — the kind painted on the side of buildings on Jamaica Avenue or Northern Boulevard. Bold flat graphic illustration style. A powerful composition featuring silhouetted sports figures, subway train motifs, and Latin cultural symbols all rendered in the bold community mural style. Background layers of building bricks showing through. The color palette is rich and symbolic: red, blue, gold, green — the colors of Queens neighborhood life. This feels like public art made for and by the community.',
-  },
-  {
-    name:'Baddie Bartender Night',
-    desc:'Dark, sultry, high-contrast nightlife energy. Deep black background with dramatic neon accent lighting in hot pink, electric blue, and fiesta red hitting from behind the bar. Confident, stylish energy — think the kind of Instagram photo a Latin baddie bartender takes at the end of a big game night. Bokeh light circles from bar glasses and bottles. Condensation on cold drinks catching colored light. The atmosphere is seductive and fun — you are missing out if you are not here tonight. Warm amber bar glow with cool blue and magenta accent neons.',
-  },
-  {
-    name:'NYC Subway Map Graphic',
-    desc:'Inspired by the iconic NYC MTA subway map graphic design system — bold colored lines on off-white or dark background, geometric station dot markers, Helvetica-style bold typography. The subway lines become design elements that frame the text and guide the eye through the composition. Red line (1-2-3), blue line (A-C-E), and orange line (B-D-F-M) colors from the real MTA map used as graphic elements. Feels unmistakably New York, unmistakably Queens. Bold, clean, system-designed, iconic.',
+    name:'NYC Subway Map',
+    artDir:'NYC MTA subway map graphic design, bold colored route lines as design elements, Helvetica typography, clean geometric layout, iconic New York City visual identity, red and blue subway line colors',
   },
 ];
 
 function getBaseStyle(vstyle){
-  // Rotates by day of week — automatically different every day
   const dayIndex=new Date().getDay();
   const base=BASE_STYLES[dayIndex % BASE_STYLES.length];
-  const flavorAddOn=vstyle
-    ?'\nTONIGHT\'S DESIGN FLAVOR (layer this ON TOP of the base style as accent energy — adds tonight\'s specific personality through props, color accents, particles, and decorative elements. The base identity stays; this gives it its unique flavor for tonight): "'+vstyle+'"'
-    :'';
-  return {base, flavorAddOn};
+  return {base, vstyle:vstyle||''};
 }
 
 function buildGeminiPrompt(gameLines,specials,dayCtx,vstyle){
-  const matchup=gameLines?gameLines.split('\n').map(l=>(l.split('|')[1]||'').trim()).filter(Boolean).join(' + '):'';
-  const times=gameLines?gameLines.split('\n').map(l=>(l.split('|')[2]||'').trim()).filter(Boolean).join(' / '):'';
-  const eventSection=matchup
-    ?'TEXT HIERARCHY (render exactly — size reflects importance):\n'
-      +'1. TOP: "FIRST STOP BAR & GRILL" — bold red italic condensed serif, white outline, large\n'
-      +'2. HERO: "'+matchup+'" — LARGEST text on frame, white with glowing outline, safe zone 20%-80% height\n'
-      +(times?'3. TIME: "'+times+'" — scoreboard digital font, electric blue or gold\n':'')
-      +'4. SPECIALS: "'+specials+'" — bold gold, clearly readable\n'
-      +'5. CTA: "FIRST STOP BAR & GRILL · WATCH LIVE TONIGHT" — white, clean, bottom\n'
-    :'TEXT HIERARCHY:\n'
-      +'1. TOP: "FIRST STOP BAR & GRILL" — bold red italic condensed serif, white outline, very large — this IS the hero\n'
-      +'2. SPECIALS/EVENT: "'+specials+'" — bold gold, large, center frame\n'
-      +'3. CTA: "FIRST STOP BAR & GRILL · COME THROUGH TONIGHT" — white, clean, bottom\n';
-  const {base,flavorAddOn}=getBaseStyle(vstyle);
+  const matchup=gameLines?gameLines.split('\n').map(l=>(l.split('|')[1]||'').trim()).filter(Boolean).join(' vs '):'';
+  const times=gameLines?gameLines.split('\n').map(l=>(l.split('|')[2]||'').trim()).filter(Boolean).join(' '):'';
+  const {base}=getBaseStyle(vstyle);
 
-  return 'Create an ANIMATED Instagram Story motion graphic (9:16 portrait, 1080x1920px) for First Stop Bar & Grill.\n\n'
+  // Build text content from form data — this drives the whole image
+  const heroText=matchup||'FIRST STOP BAR & GRILL';
+  const subText=times?times+' ET':'Tonight';
+  const specialsText=specials&&specials!=='Cold beers, great food, best seats in NYC'?specials:'';
+  const styleOverride=vstyle?vstyle:base.artDir;
 
-    +'═══ BRAND BRIEF — MANDATORY ═══\n'
-    +'First Stop Bar & Grill is exactly 50% gritty NYC sports bar and 50% vibrant Latin cultural venue. Both identities must be equally visible. Not one more than the other.\n\n'
-
-    +'THE NYC SPORTS HALF:\n'
-    +'Street sign energy. Classic Americana. Queens neighborhood pride. Old school fight poster typography. Vintage baseball card aesthetics. Bold red and electric blue from the real exterior sign — "First Stop" in big bold red italic serif with white outline, "BAR & GRILL" in illuminated electric blue. Typography-forward — the text IS the design, not decoration on top of a photo. Gritty, real, borough-proud. The kind of graphic that gets wheat-pasted on a wall on Roosevelt Avenue.\n\n'
-
-    +'THE LATIN CULTURAL HALF:\n'
-    +'The bar interior walls are covered floor to ceiling in vivid NYC subway graffiti art — wild style lettering, Latin cultural motifs, Dominican and Puerto Rican pride symbols. At night it becomes a party venue: Latin music, confident Latin bartenders with style and attitude, celebration everywhere. Hot magenta #e91e8c, tropical gold #f5a623, fiesta orange #ff6b35 bleed through the design as energy accents. The crowd comes to watch sports AND stay for the party. This is a cultural venue that happens to show sports.\n\n'
-
-    +'BRAND COLORS (always present):\n'
-    +'First Stop Red #e63946 · Electric Blue #2563eb · White #ffffff · Gold #f9ca24\n'
-    +'Latin heat accents: hot magenta #e91e8c · tropical gold #f5a623 · fiesta orange #ff6b35\n\n'
-
-    +'AUDIENCE (both must feel seen simultaneously):\n'
-    +'NY sports fans: borough-proud, team-loyal, respond to championship grit and Queens neighborhood pride.\n'
-    +'Latin sports community: vibrant, celebratory, passionate, respond to warmth, bold color, belonging, and nightlife party energy.\n\n'
-
-    +'BASE VISUAL STYLE — "'+base.name+'":\n'
-    +base.desc+'\n'
-    +flavorAddOn+'\n\n'
-
-    +eventSection+'\n'
-
-    +'ANIMATION SEQUENCE (every layer moves — motion graphic not static):\n'
-    +'0.0s: Base style background establishes with motion — textures, graffiti, or environment animates in\n'
-    +'0.3s: Brand color flash sweeps frame — red or blue\n'
-    +'0.5s: "FIRST STOP BAR & GRILL" stamps in from left with impact glow\n'
-    +'0.8s: "'+matchup+'" slams in from top — physics bounce — pulses with red and blue glow aura — CHAMPIONSHIP MOMENT\n'
-    +'1.2s: "'+times+'" flips in like a scoreboard\n'
-    +'1.5s: Specials shimmer in with gold sweep\n'
-    +'1.8s: Culturally relevant celebration burst — confetti, sparks, maracas, or fire depending on base style\n'
-    +'2.0s: CTA fades in at bottom\n'
-    +'LOOP: Background breathes. Matchup glow pulses. Brand colors cycle.\n\n'
-
-    +'EMOTIONAL GOAL:\n'
-    +'The NY sports fan sees this and thinks: that is my bar, that is my game, I need to be there.\n'
-    +'The Latin fan sees this and thinks: that looks like a party, my people are there, I am going.\n'
-    +'Both reactions from the same image. Scroll-stopping in under 1 second.\n\n'
-
-    +'NO generic sports bar templates. NO plain dark stadium crowd blurs. Typography IS the design.\n'
-    +(dayCtx?'\nTODAY THEME: '+dayCtx:'');
+  // Tight, visual, AI-optimized prompt
+  return [
+    'Instagram Story flyer, 9:16 vertical format, for a Queens NYC sports bar called First Stop Bar & Grill.',
+    '',
+    'STYLE: '+styleOverride+', instagram-ready marketing flyer, bold typography-forward design, high contrast, scroll-stopping in under 1 second',
+    '',
+    'DESIGN: Dark background, dramatic lighting, bold text layout. The typography IS the design — not a photo with text on top.',
+    '',
+    'TEXT TO SHOW ON THE FLYER (render exactly, do not change these words):',
+    '- Bar name at top: "FIRST STOP BAR & GRILL" — bold red with white outline, large',
+    matchup ? '- Main event, largest text on screen: "'+heroText+'" — white, bold, centered, massive' : '',
+    times   ? '- Below event: "'+subText+'" — electric blue or gold, scoreboard font' : '',
+    specialsText ? '- Specials: "'+specialsText+'" — gold text, clearly readable' : '',
+    '- Bottom: "LIVE GAME NIGHT · FOOD & DRINKS · 21+" — white, smaller',
+    '',
+    'COLORS: First Stop Red #e63946, Electric Blue #2563eb, White #ffffff, Gold #f9ca24'+(vstyle?', plus: '+vstyle:''),
+    '',
+    'AUDIENCE: Adults 21+, NY sports fans, Queens locals, Latin sports enthusiasts',
+    'GOAL: Make someone stop scrolling and want to come to the bar tonight',
+    'FORMAT: Animated Instagram Story if possible — moving background, text slides in, glowing accents',
+    'NO generic stock photos. NO stadium crowd blur. Bold, real, Queens NYC energy.',
+    dayCtx?'TONIGHT: '+dayCtx:'',
+  ].filter(Boolean).join('\n');
 }
 
 function buildCanvaPrompt(gameLines,specials,dayCtx,vstyle){
-  const matchup=gameLines?gameLines.split('\n').map(l=>(l.split('|')[1]||'').trim()).filter(Boolean).join(' + '):'';
-  const times=gameLines?gameLines.split('\n').map(l=>(l.split('|')[2]||'').trim()).filter(Boolean).join(' / '):'';
-  const {base, flavorAddOn}=getBaseStyle(vstyle);
+  const matchup=gameLines?gameLines.split('\n').map(l=>(l.split('|')[1]||'').trim()).filter(Boolean).join(' vs '):'';
+  const times=gameLines?gameLines.split('\n').map(l=>(l.split('|')[2]||'').trim()).filter(Boolean).join(' '):'';
+  const {base}=getBaseStyle(vstyle);
 
-  return 'Build an ANIMATED Instagram Story in Canva (9:16 vertical, 1080x1920px) for First Stop Bar & Grill.\n\n'
+  const heroText=matchup||'FIRST STOP BAR & GRILL';
+  const subText=times?times+' ET':'Tonight';
+  const specialsText=specials&&specials!=='Cold beers, great food, best seats in NYC'?specials:'';
+  const styleOverride=vstyle?vstyle:base.artDir;
 
-    +'═══ BRAND BRIEF — READ BEFORE DESIGNING ═══\n'
-    +'First Stop Bar & Grill is 50% gritty NYC sports bar, 50% vibrant Latin cultural venue.\n'
-    +'These two identities must coexist equally in every piece of creative — not one dominating the other.\n\n'
-
-    +'THE NYC SPORTS HALF (50%):\n'
-    +'- Street sign energy. Classic Americana. Queens neighborhood pride.\n'
-    +'- Old school fight poster typography. Vintage baseball card aesthetics.\n'
-    +'- Bold red and electric blue from the real exterior sign.\n'
-    +'- Typography-forward — the text IS the design, not decoration on top of a photo.\n'
-    +'- Gritty, real, borough-proud. The kind of graphic that gets wheat-pasted on a wall.\n\n'
-
-    +'THE LATIN CULTURAL HALF (50%):\n'
-    +'- The inside walls are covered in NYC subway graffiti art — wild style lettering, vivid colors, Latin cultural motifs.\n'
-    +'- At night this is a party venue: Latin music, confident bartenders, celebration energy.\n'
-    +'- Hot magenta, tropical yellow-gold, electric green, fiesta red — Latin color warmth.\n'
-    +'- The vibe: Latin baddie bartender energy — stylish, confident, sensual, joyful.\n'
-    +'- This crowd comes to watch sports AND stay for the party after.\n\n'
-
-    +'BRAND COLORS (always present):\n'
-    +'- First Stop Red #e63946 — exterior sign dominant color\n'
-    +'- Electric Blue #2563eb — the illuminated channel letter color\n'
-    +'- White #ffffff — high contrast text\n'
-    +'- Gold #f9ca24 — specials and champion moments\n'
-    +'- Latin accents: hot magenta #e91e8c, tropical gold #f5a623, fiesta orange #ff6b35\n\n'
-
-    +'AUDIENCE (speak to BOTH in one image):\n'
-    +'NY sports fans who are borough-proud and team-loyal + Latin sports community who are vibrant, celebratory, and there to party. One flyer, two communities, one home.\n\n'
-
-    +'BASE STYLE FOR THIS GENERATION — "'+base.name+'":\n'
-    +base.desc+'\n'
-    +'In Canva: use this style for your background. Search the Canva photo/element library for matching textures and imagery. Apply background animation: Breathe, Pan, or Zoom based on the energy of this style.\n'
-    +flavorAddOn+'\n\n'
-
-    +'TEXT BLOCKS — animate in this exact sequence (each element enters separately):\n\n'
-
-    +'BLOCK 1 — Bar Name:\n'
-    +'Text: "FIRST STOP BAR & GRILL"\n'
-    +'Font: Bold condensed italic serif — Impact, Anton, or Bebas Neue. Large. Matches the real sign energy.\n'
-    +'Color: First Stop Red #e63946 with thick white outline\n'
-    +'Position: Top of frame, full width\n'
-    +'Canva Animation: RISE or SLIDE from left — stamps into position\n\n'
-
-    +(matchup
-      ?'BLOCK 2 — Game Matchup (THE HERO — biggest, most dominant element):\n'
-        +'Text: "'+matchup+'"\n'
-        +'Font: Extra bold condensed, LARGEST on frame — championship moment\n'
-        +'Color: White with Electric Blue #2563eb glow outline, or white with Red #e63946 outline\n'
-        +'Position: Center — safe zone 20% to 80% of frame height\n'
-        +'Canva Animation: TUMBLE or BOUNCE — heavy impact drop\n\n'
-        +(times
-          ?'BLOCK 3 — Game Time:\n'
-            +'Text: "'+times+'"\n'
-            +'Font: Digital clock or monospace — scoreboard energy\n'
-            +'Color: Electric Blue #2563eb or Gold #f9ca24\n'
-            +'Position: Directly below matchup\n'
-            +'Canva Animation: TYPEWRITER\n\n'
-          :'')
-      :'BLOCK 2 — Main Message (hero element — largest on frame):\n'
-        +'Text: "'+specials+'" or tonight\'s theme\n'
-        +'Font: Extra bold condensed, very large\n'
-        +'Color: Championship Gold #f9ca24 or white with red outline\n'
-        +'Position: Center — safe zone\n'
-        +'Canva Animation: TUMBLE or BOUNCE\n\n'
-    )
-
-    +'BLOCK 4 — Specials:\n'
-    +'Text: "'+specials+'"\n'
-    +'Font: Bold, medium size — clearly readable\n'
-    +'Color: Championship Gold #f9ca24\n'
-    +'Canva Animation: SHIMMER or SPARKLE\n\n'
-
-    +'BLOCK 5 — CTA (always last, always visible):\n'
-    +'Text: "FIRST STOP BAR & GRILL · WATCH LIVE TONIGHT"\n'
-    +'Font: Clean bold sans-serif, smaller than matchup\n'
-    +'Color: White\n'
-    +'Canva Animation: FADE IN\n\n'
-
-    +'DECORATIVE ELEMENTS IN CANVA (add these for the dual identity feel):\n'
-    +'- Animated Canva sticker: choose based on base style — fire/sparks for fight poster, confetti/maracas for Latin night, subway car icon for graffiti style, stars for retro card\n'
-    +'- A low-opacity diagonal stripe or geometric overlay in brand colors behind the text\n'
-    +'- Apply a Neon or Glow effect to the matchup text block\n'
-    +'- If the base style supports it: add a subtle graffiti tag element or subway line graphic in a corner\n\n'
-
-    +'ANIMATION FEEL: Sequential reveal — each block enters after the previous one lands. Nothing is static. Background moves continuously. Text glows and pulses after arriving.\n\n'
-
-    +'EMOTIONAL GOAL:\n'
-    +'The NY sports fan scrolling Instagram sees this and thinks: that is MY bar, that is MY game, I need to be there.\n'
-    +'The Latin fan scrolling Instagram sees this and thinks: that looks like a PARTY, my people are there, I am going.\n'
-    +'Both reactions happen from the SAME image. That is the goal.\n'
-    +(dayCtx?'\nTODAY THEME: '+dayCtx:'');
+  return [
+    '=== CANVA INSTAGRAM STORY — First Stop Bar & Grill ===',
+    'Format: 9:16 vertical, 1080x1920px. This is a game night marketing flyer for a Queens NYC bar.',
+    '',
+    '--- BACKGROUND ---',
+    'Style: '+styleOverride,
+    'Background animation: Breathe or Pan (slow continuous motion)',
+    'Dark background preferred. High contrast. Bold.',
+    '',
+    '--- TEXT BLOCKS (add in order, animate each one) ---',
+    '',
+    'BLOCK 1 — Bar Name (top):',
+    '  Text: FIRST STOP BAR & GRILL',
+    '  Font: Anton, Impact, or Bebas Neue — bold, large',
+    '  Color: #e63946 red with white outline',
+    '  Animation: Rise or Slide from left',
+    '',
+    matchup
+      ? ['BLOCK 2 — Main Event (center, LARGEST text on page):',
+         '  Text: '+heroText,
+         '  Font: Extra bold condensed — make this dominate the frame',
+         '  Color: White with red or blue glow',
+         '  Position: Center of frame (avoid very top and very bottom — thumbs cover those)',
+         '  Animation: Tumble or Bounce',
+         '',
+         times
+           ? ['BLOCK 3 — Time:',
+              '  Text: '+subText,
+              '  Font: Monospace or digital clock style',
+              '  Color: #2563eb blue or #f9ca24 gold',
+              '  Animation: Typewriter',
+              ''].join('\n')
+           : ''
+        ].join('\n')
+      : '',
+    specialsText
+      ? ['BLOCK '+(matchup?'4':'2')+' — Specials:',
+         '  Text: '+specialsText,
+         '  Font: Bold, medium',
+         '  Color: #f9ca24 gold',
+         '  Animation: Shimmer or Sparkle',
+         ''].join('\n')
+      : '',
+    'BLOCK — Bottom CTA:',
+    '  Text: LIVE GAME NIGHT · FOOD & DRINKS · 21+',
+    '  Font: Clean bold, smaller than main event',
+    '  Color: White',
+    '  Animation: Fade In',
+    '',
+    '--- EXTRAS ---',
+    'Add one animated Canva sticker that fits the vibe: fire, confetti, sparks, or stars',
+    'Apply Neon or Glow effect to the main event text',
+    'Low-opacity diagonal color stripe in brand colors behind text',
+    '',
+    '--- GOAL ---',
+    'Adults 21+ in Queens NYC should see this and want to come to the bar tonight.',
+    'NY sports fans AND Latin sports enthusiasts should both feel this is for them.',
+    dayCtx?'Tonight context: '+dayCtx:'',
+  ].filter(Boolean).join('\n');
 }
 
 // ── GENERATE ──
@@ -885,12 +825,13 @@ async function doGen(){
   const localPrompt=curPlt==='gemini'?buildGeminiPrompt(gameLines,specials,dayCtx,vstyle):buildCanvaPrompt(gameLines,specials,dayCtx,vstyle);
 
   // Refine with Gemini API
-  const refine='You are an expert AI image prompt engineer and social media designer. '
-    +'You are refining a prompt for First Stop Bar & Grill — a brand that is exactly 50% gritty NYC sports bar (street sign energy, classic Americana, Queens pride, old school fight poster typography, vintage baseball card aesthetics) and 50% vibrant Latin cultural venue (subway graffiti interior walls, Latin nightlife, confident bartenders, hot magenta and fiesta orange energy, party atmosphere). '
-    +'Their audience is NY sports fans AND the Latin sports community — both must feel equally seen in every piece of creative. '
-    +'Refine the following '+(curPlt==='gemini'?'Gemini ImageFX animated motion graphic':'Canva AI animated Instagram Story')+' prompt to be more vivid, specific, and visually electric. '
-    +'RULES: Keep ALL exact text, game names, times, and specials unchanged. Keep ALL animation instructions. Keep ALL brand color references. Do NOT add any location names. Only enhance visual richness, cultural authenticity, typographic boldness, and emotional impact. '
-    +'Must be scroll-stopping in under 1 second on Instagram. Return ONLY the final polished prompt — no explanation.\n\n'+localPrompt;
+  const refine='You are an expert AI image prompt writer for social media marketing. '
+    +'Tighten and enhance the following Instagram Story flyer prompt for a Queens NYC sports bar (First Stop Bar & Grill). '
+    +'The bar is a neighborhood dive with a sports angle. Audience: adults 21+, NY sports fans, Queens locals, Latin sports enthusiasts. '
+    +'Style direction: vintage fight poster meets Latin party flyer meets NYC street art — bold typography-forward, not a generic sports bar photo. '
+    +'RULES: Keep ALL exact text marked as flyer copy unchanged. Keep the style and color directions. Make the visual description more specific and vivid for an AI image generator. '
+    +'Remove any brand manifesto language — replace with tight visual art direction words. Under 350 words total. '
+    +'Return ONLY the final prompt, no explanation.\n\n'+localPrompt;
 
   try{
     const resp=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+geminiKey,{
