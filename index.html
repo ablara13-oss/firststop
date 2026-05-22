@@ -626,7 +626,9 @@ function updateBtn(){
   if(isGen){btn.className='gbtn dis';btn.textContent='GENERATING…';return;}
   btn.className='gbtn ready';
   const n=selected.size;
-  btn.textContent=n>0?'GENERATE '+curPlt.toUpperCase()+' PROMPT'+(n>1?' ('+n+' GAMES)'):'':'GENERATE '+curPlt.toUpperCase()+' PROMPT';
+  if(n>1){btn.textContent='GENERATE '+curPlt.toUpperCase()+' PROMPT ('+n+' GAMES)';}
+  else if(n===1){btn.textContent='GENERATE '+curPlt.toUpperCase()+' PROMPT';}
+  else{btn.textContent='GENERATE '+curPlt.toUpperCase()+' PROMPT';}
 }
 
 // ── PROMPT BUILDERS ──
