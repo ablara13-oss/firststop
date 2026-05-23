@@ -91,8 +91,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
 .t-hot{background:rgba(245,158,11,.22);color:var(--amber)}
 .t-play{background:rgba(34,197,94,.2);color:var(--green)}
 .t-live{background:var(--red);color:#fff;animation:pulse 1.5s infinite}
-.t-free{background:rgba(34,197,94,.15);color:#86efac;font-size:1rem;font-weight:800;padding:3px 9px;border:1px solid rgba(34,197,94,.28)}
-.t-verify{background:rgba(245,158,11,.15);color:var(--amber);font-size:1rem;font-weight:800;padding:3px 9px;border:1px solid rgba(245,158,11,.28)}
+.t-ota{background:rgba(34,197,94,.28);color:#4ade80;font-size:.85rem;font-weight:800;padding:3px 9px;border:1px solid rgba(34,197,94,.5)}
+.t-fios{background:rgba(96,165,250,.18);color:#93c5fd;font-size:.85rem;font-weight:800;padding:3px 9px;border:1px solid rgba(96,165,250,.4)}
+.t-verify{background:rgba(245,158,11,.15);color:var(--amber);font-size:.85rem;font-weight:800;padding:3px 9px;border:1px solid rgba(245,158,11,.28)}
 .t-latin{background:rgba(34,197,94,.2);color:var(--green);font-size:1rem;font-weight:800;padding:3px 9px;border:1px solid rgba(34,197,94,.35)}
 .gr-net{font-size:.75rem;color:var(--mu);margin-top:1px}
 
@@ -216,17 +217,15 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
 <div class="bc-key">
   <div class="bc-key-title">Guide Key</div>
   <div class="bc-key-row">
-    <div class="bc-item"><div class="bc-dot" style="background:var(--gold)"></div>NY Team</div>
+    <div class="bc-item"><span style="color:#4ade80;font-weight:800">📡 FREE OVER AIR</span>&nbsp;ABC · NBC · CBS · Fox</div>
     <div class="bc-divider"></div>
-    <div class="bc-item"><div class="bc-dot" style="background:var(--red)"></div>Must Promote</div>
+    <div class="bc-item"><span style="color:#93c5fd;font-weight:800">✅ FIOS + SPECTRUM</span>&nbsp;YES · SNY · MSG · ESPN · TNT · FS1 · TUDN + more</div>
     <div class="bc-divider"></div>
-    <div class="bc-item"><div class="bc-dot" style="background:var(--amber)"></div>High Draw</div>
+    <div class="bc-item"><span style="color:var(--amber);font-weight:800">⚠️ VERIFY</span>&nbsp;ESPN+ · Peacock · Apple TV+ · Paramount+</div>
     <div class="bc-divider"></div>
-    <div class="bc-item"><div class="bc-dot" style="background:var(--green)"></div>Latin Audience — Free</div>
+    <div class="bc-item"><div class="bc-dot" style="background:var(--gold)"></div>🗽 NY Team</div>
     <div class="bc-divider"></div>
-    <div class="bc-item"><span style="font-size:.82rem;color:#86efac;font-weight:700">✅ LIKELY FREE</span>&nbsp;Fios/Spectrum covered</div>
-    <div class="bc-divider"></div>
-    <div class="bc-item"><span style="font-size:.82rem;color:var(--amber);font-weight:700">⚠️ VERIFY</span>&nbsp;Streaming — confirm before airing</div>
+    <div class="bc-item"><div class="bc-dot" style="background:var(--red)"></div>🔥 Must Promote</div>
   </div>
 </div>
 
@@ -328,44 +327,149 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
 
 <script>
 // ── BROADCAST DB ──
-const CABLE=['abc','nbc','cbs','fox','espn','espn2','espnu','tnt','tbs','truetv','fs1','fs2','nfl network','mlb network','nhl network','nba tv','yes network','yes','sny','msg','univision','unimas','tudn','espn deportes','fox deportes','bein sports','bein','cbssn','stadium'];
-const STREAM=['espn+','peacock','paramount+','apple tv+','apple tv','nba league pass','mlb.tv','nhl.tv','mls season pass','fubo','dazn','max','hulu live','youtube tv'];
+// ══════════════════════════════════════════════════════════
+// BROADCAST RIGHTS — 3 categories for First Stop Bar & Grill
+// Based on actual Fios for Business + Spectrum Business NY packages
+// ══════════════════════════════════════════════════════════
+
+// CATEGORY 1: Free Over-the-Air broadcast TV — no cable needed, antenna works
+const FREE_OTA=['abc','nbc','cbs','fox','pbs','cw'];
+
+// CATEGORY 2: Fios for Business (Verizon) — NY market commercial package
+// Includes all OTA + these cable channels
+const FIOS_CHANNELS=[
+  'yes network','yes','sny','msg','msg+',
+  'espn','espn2','espnu','espn news',
+  'tnt','tbs','truetv',
+  'fs1','fs2',
+  'nfl network','mlb network','nhl network','nba tv',
+  'univision','unimas','tudn','espn deportes','fox deportes',
+  'bein sports','bein',
+  'cbssn','nbc sports','usa network',
+  'golf channel','tennis channel','olympic channel',
+  'stadium','sec network','acc network',
+];
+
+// CATEGORY 3: Spectrum for Business — NY market commercial package
+// Very similar to Fios in NY. Same sports channels. Minor regional differences.
+const SPECTRUM_CHANNELS=[
+  'yes network','yes','sny','msg','msg+',
+  'espn','espn2','espnu','espn news',
+  'tnt','tbs','truetv',
+  'fs1','fs2',
+  'nfl network','mlb network','nhl network','nba tv',
+  'univision','unimas','tudn','espn deportes','fox deportes',
+  'bein sports','bein',
+  'cbssn','nbc sports','usa network',
+  'golf channel','tennis channel','olympic channel',
+  'stadium','sec network','acc network',
+];
+
+// CATEGORY 4: Streaming only — NOT in either package, needs separate subscription
+const STREAM_ONLY=[
+  'espn+','peacock','paramount+','apple tv+','apple tv',
+  'nba league pass','mlb.tv','nhl.tv','mls season pass',
+  'fubo','dazn','max','hulu live','youtube tv','sling',
+  'amazon prime','prime video','directv stream',
+];
+
+// Sport-level fallback when ESPN API returns no broadcast data
 const SPORT_KB={
-  nfl:{net:'ESPN / ABC / NBC / CBS / Fox / NFL Network',note:'NFL always on cable — covered.'},
-  nba:{net:'TNT / ESPN / ABC',note:'NBA Playoffs on TNT, ESPN, ABC — cable, covered.'},
-  mlb:{net:'ESPN / Fox / FS1 / MLB Network / YES / SNY',note:'Most MLB on cable. Apple TV Friday games — verify those.'},
-  nhl:{net:'TNT / TBS / ESPN',note:'NHL Playoffs on TNT/TBS/ESPN — cable, covered.'},
+  nfl:{label:'📡 FREE / FIOS / SPECTRUM',note:'NFL airs on ABC, NBC, CBS, Fox (free OTA) and ESPN, NFL Network (Fios + Spectrum). All covered.'},
+  nba:{label:'✅ FIOS + SPECTRUM',note:'NBA Playoffs on TNT, ESPN, ABC — all covered by both packages.'},
+  mlb:{label:'✅ FIOS + SPECTRUM',note:'Most MLB on ESPN, Fox, YES Network, SNY — covered. Friday night Apple TV games need verification.'},
+  nhl:{label:'✅ FIOS + SPECTRUM',note:'NHL on TNT, TBS, ESPN — covered by both packages.'},
 };
+
 const SOCCER_KB={
-  'soccer.uefa.champions':{net:'CBS Sports Network/Paramount+',free:false,latin:true,note:'UCL: CBS Sports Net (ok) + Paramount+ (verify).'},
-  'soccer.eng.1':{net:'USA Network/Peacock',free:false,latin:false,note:'EPL: USA Network (ok) + Peacock (verify).'},
-  'soccer.spa.1':{net:'ESPN Deportes/ESPN+',free:false,latin:true,note:'La Liga: ESPN Deportes (ok) + ESPN+ (verify).'},
-  'soccer.ita.1':{net:'CBS Sports Network/Paramount+',free:false,latin:true,note:'Serie A: CBS Sports Net (ok) + Paramount+ (verify).'},
-  'soccer.ger.1':{net:'ESPN/ESPN+',free:false,latin:false,note:'Bundesliga: ESPN (ok) + ESPN+ (verify).'},
-  'soccer.fra.1':{net:'beIN Sports',free:true,latin:false,note:'Ligue 1 on beIN Sports — cable, covered.'},
-  'soccer.usa.1':{net:'Apple TV+/Univision',free:false,latin:true,note:'MLS: Apple TV+ (verify) + Univision free game (ok).'},
-  'soccer.mex.1':{net:'TUDN/Univision',free:true,latin:true,note:'Liga MX on TUDN/Univision — cable, covered. Promote to Latin audience.'},
-  'soccer.conmebol.1':{net:'beIN Sports/Univision',free:true,latin:true,note:'Copa Libertadores — cable, covered. Great Latin audience draw.'},
-  'soccer.por.1':{net:'GolTV/beIN Sports',free:true,latin:true,note:'Primeira Liga — cable, covered.'},
-  'soccer.ned.1':{net:'ESPN+',free:false,latin:false,note:'Eredivisie mainly ESPN+. Verify per game.'},
-  'soccer.uefa.europa':{net:'CBS Sports Network/Paramount+',free:false,latin:true,note:'Europa League: CBS Sports Net (ok) + Paramount+ (verify).'},
+  'soccer.uefa.champions':{fios:true,spectrum:true,ota:false,latin:true,note:'Champions League: CBS Sports Network (both packages) + Paramount+ (streaming, verify).'},
+  'soccer.eng.1':{fios:true,spectrum:true,ota:false,latin:false,note:'Premier League: USA Network (both packages) + Peacock (streaming, verify per game).'},
+  'soccer.spa.1':{fios:true,spectrum:true,ota:false,latin:true,note:'La Liga: ESPN Deportes (both packages) + ESPN+ (streaming, verify).'},
+  'soccer.ita.1':{fios:true,spectrum:true,ota:false,latin:true,note:'Serie A: CBS Sports Network (both packages) + Paramount+ (streaming, verify).'},
+  'soccer.ger.1':{fios:true,spectrum:true,ota:false,latin:false,note:'Bundesliga: ESPN (both packages) + ESPN+ (streaming, verify per game).'},
+  'soccer.fra.1':{fios:true,spectrum:true,ota:false,latin:false,note:'Ligue 1: beIN Sports — included in both packages.'},
+  'soccer.usa.1':{fios:false,spectrum:false,ota:false,latin:true,note:'MLS: Apple TV+ (streaming — verify) + free weekly Univision game (both packages).'},
+  'soccer.mex.1':{fios:true,spectrum:true,ota:false,latin:true,note:'Liga MX: TUDN + Univision — both covered. Great for your Latin audience.'},
+  'soccer.conmebol.1':{fios:true,spectrum:true,ota:false,latin:true,note:'Copa Libertadores: beIN Sports + Univision — both covered.'},
+  'soccer.por.1':{fios:true,spectrum:true,ota:false,latin:true,note:'Primeira Liga: beIN Sports — covered by both packages.'},
+  'soccer.ned.1':{fios:false,spectrum:false,ota:false,latin:false,note:'Eredivisie: ESPN+ only — streaming, verify before airing.'},
+  'soccer.uefa.europa':{fios:true,spectrum:true,ota:false,latin:true,note:'Europa League: CBS Sports Network (both packages) + Paramount+ (streaming, verify).'},
 };
+
 function getBc(g){
-  const n=(g.network||'').toLowerCase().trim();
-  if(n.length>0){
-    const isSt=STREAM.some(s=>n.includes(s));
-    const hasESPN=n.includes('espn')&&!n.includes('espn+');
-    const isCa=CABLE.some(c=>n.includes(c))||hasESPN;
-    if(isCa&&!isSt)return{free:true,label:'✅ LIKELY FREE',cls:'t-free',conf:90,tip:'Cable — covered by Fios/Spectrum Business.'};
-    if(isSt&&!isCa)return{free:false,label:'⚠️ VERIFY',cls:'t-verify',conf:85,tip:'Streaming — not in commercial package.'};
-    if(isCa&&isSt)return{free:false,label:'⚠️ VERIFY CHANNEL',cls:'t-verify',conf:68,tip:'Mixed — confirm which channel airs this game.'};
+  const raw=(g.network||'').toLowerCase().trim();
+
+  // ── No network from API — use sport/league knowledge ──
+  if(!raw){
+    if(g.sport==='soccer'&&SOCCER_KB[g.leagueId]){
+      const kb=SOCCER_KB[g.leagueId];
+      const covered=kb.fios&&kb.spectrum;
+      return{
+        label:covered?'✅ FIOS + SPECTRUM':'⚠️ VERIFY',
+        cls:covered?'t-fios':'t-verify',
+        fios:kb.fios,spectrum:kb.spectrum,ota:false,
+        tip:kb.note,latin:kb.latin
+      };
+    }
+    if(SPORT_KB[g.sport]){
+      const kb=SPORT_KB[g.sport];
+      return{label:kb.label,cls:'t-fios',fios:true,spectrum:true,ota:g.sport==='nfl',tip:kb.note+' (channel not returned by API)'};
+    }
+    return{label:'⚠️ VERIFY',cls:'t-verify',fios:false,spectrum:false,ota:false,tip:'No broadcast data from API — confirm with your provider before airing.'};
   }
+
+  // ── Check streaming-only first ──
+  const isStreamOnly=STREAM_ONLY.some(s=>raw.includes(s));
+
+  // ── Check OTA (free broadcast) ──
+  const isOTA=FREE_OTA.some(ch=>raw.includes(ch));
+
+  // ── Check Fios ──
+  const inFios=FIOS_CHANNELS.some(ch=>raw.includes(ch)) || (raw.includes('espn')&&!raw.includes('espn+'));
+
+  // ── Check Spectrum ──
+  const inSpectrum=SPECTRUM_CHANNELS.some(ch=>raw.includes(ch)) || (raw.includes('espn')&&!raw.includes('espn+'));
+
+  // ── Determine label ──
+  // If a known cable channel is present it wins over streaming listed alongside it
+  if(isOTA&&!isStreamOnly){
+    return{label:'📡 FREE OVER AIR',cls:'t-ota',fios:true,spectrum:true,ota:true,
+      tip:(g.network||'')+' is broadcast TV — free with antenna. Also covered by both Fios and Spectrum Business.'};
+  }
+  if(isOTA&&inFios){
+    return{label:'📡 FREE OVER AIR',cls:'t-ota',fios:true,spectrum:true,ota:true,
+      tip:(g.network||'')+' — free broadcast + covered by both packages.'};
+  }
+  if(inFios&&inSpectrum&&!isStreamOnly){
+    const matched=(FIOS_CHANNELS.find(ch=>raw.includes(ch))||'').toUpperCase();
+    return{label:'✅ FIOS + SPECTRUM',cls:'t-fios',fios:true,spectrum:true,ota:false,
+      tip:(matched||g.network||'')+' — included in both Fios for Business and Spectrum Business packages.'};
+  }
+  if(inFios&&inSpectrum&&isStreamOnly){
+    // Mixed — cable channel wins, streaming is secondary
+    const matched=(FIOS_CHANNELS.find(ch=>raw.includes(ch))||'').toUpperCase();
+    return{label:'✅ FIOS + SPECTRUM',cls:'t-fios',fios:true,spectrum:true,ota:false,
+      tip:(matched||g.network||'')+' — covered by both packages. Also available on streaming (not needed).'};
+  }
+  if(inFios&&!inSpectrum){
+    return{label:'✅ FIOS ONLY',cls:'t-fios',fios:true,spectrum:false,ota:false,
+      tip:(g.network||'')+' — included in Fios for Business. Verify with Spectrum.'};
+  }
+  if(isStreamOnly&&!inFios&&!inSpectrum){
+    return{label:'⚠️ VERIFY',cls:'t-verify',fios:false,spectrum:false,ota:false,
+      tip:(g.network||'')+' is streaming only — not included in Fios or Spectrum Business. Needs separate subscription.'};
+  }
+
+  // Soccer fallback
   if(g.sport==='soccer'&&SOCCER_KB[g.leagueId]){
     const kb=SOCCER_KB[g.leagueId];
-    return{free:kb.free,label:kb.free?'✅ LIKELY FREE':'⚠️ VERIFY',cls:kb.free?'t-free':'t-verify',conf:kb.free?83:70,tip:kb.note,latin:kb.latin};
+    const covered=kb.fios&&kb.spectrum;
+    return{label:covered?'✅ FIOS + SPECTRUM':'⚠️ VERIFY',cls:covered?'t-fios':'t-verify',
+      fios:kb.fios,spectrum:kb.spectrum,ota:false,tip:kb.note,latin:kb.latin};
   }
-  if(SPORT_KB[g.sport])return{free:true,label:'✅ LIKELY FREE',cls:'t-free',conf:88,tip:SPORT_KB[g.sport].note};
-  return{free:false,label:'⚠️ VERIFY',cls:'t-verify',conf:50,tip:'No broadcast data — check before airing.'};
+
+  return{label:'⚠️ VERIFY',cls:'t-verify',fios:false,spectrum:false,ota:false,
+    tip:'Could not determine package coverage — confirm with your provider before airing.'};
 }
 
 // ── DAY THEMING ──
@@ -431,7 +535,7 @@ function isLatinFree(g){
 let allGames=[],selected=new Set(),curPlt='gemini',genOut='',isGen=false,timer=null;
 const HOW={
   gemini:'1. Click <strong>Copy Prompt</strong> &rarr; 2. Open <a href="https://labs.google/fx/tools/image-fx" target="_blank">Gemini ImageFX ↗</a> &rarr; 3. Paste and Generate &rarr; 4. Download and post to Instagram Stories.',
-  canva:'1. Click <strong>Copy Prompt</strong> &rarr; 2. Open <a href="https://www.canva.com" target="_blank">Canva ↗</a> &rarr; Create Instagram Story &rarr; Apps &rarr; Text to Image &rarr; Paste &rarr; Generate &rarr; customize and post.',
+  canva:'1. Click <strong>Copy Prompt</strong> &rarr; 2. Open <a href="https://www.canva.com" target="_blank">Canva ↗</a> &rarr; 3. Go to <strong>Canva AI</strong> (Apps &rarr; Text to Image) &rarr; 4. Paste and Generate &rarr; 5. Customize and post.',
 };
 let geminiKey=localStorage.getItem('fsb_gemini_key')||'';
 function loadKeyUI(){
@@ -562,7 +666,7 @@ function row(g){
   if(isLive)tags+='<span class="tag t-live">● LIVE</span>';
   if(isNY)tags+='<span class="tag t-ny">🗽 NY Team</span>';
   if(isPlay)tags+='<span class="tag t-play">🏆 Playoffs</span>';
-  if(latinFree)tags+='<span class="tag t-latin">🌎 Latin Audience — Free</span>';
+  if(latinFree)tags+='<span class="tag t-fios">🌎 Latin Audience — Covered</span>';
   else if(t==='fire'&&!isNY)tags+='<span class="tag t-fire">🔥 Must Promote</span>';
   else if(t==='hot'&&!isNY)tags+='<span class="tag t-hot">⚡ High Draw</span>';
   tags+='<span class="tag '+bs.cls+'">'+bs.label+'</span>';
